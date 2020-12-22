@@ -11,4 +11,4 @@ Some things to note:
 5) NTP based, no battery / RTC. Connect to wifi and you're done.
 6) No buttons design. Simple configuration portal is used for settings.
 7) Daylight saving (summer time) support built in and super simple to set up.
-8) MicroUSB connector, ~500mA power consumption on 5V on full brightness.
+8) MicroUSB connector, Below 500mA power consumption on 5V on full brightness.
