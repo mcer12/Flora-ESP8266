@@ -18,7 +18,7 @@
 //#include <ShiftRegister74HC595.h>
 
 #include <NeoPixelBus.h>
-#include <NeoPixelAnimator.h>
+//#include <NeoPixelAnimator.h>
 
 #include <TimeLib.h>
 #include <Timezone.h>
@@ -88,6 +88,7 @@ const uint8_t digitPins[6][8] = { // Digit 3 is shuffled around
 };
 uint8_t letter_p[8] = {0, 0, 1, 1, 1, 1, 1, 0};
 uint8_t letter_i[8] = {0, 0, 1, 1, 0, 0, 0, 0};
+uint8_t dot[8] = {0, 0, 0, 0, 0, 0, 0, 1};
 uint8_t numbers[10][8] = {
   {1, 1, 1, 1, 0, 1, 1, 0}, // 0 ==>  BR | B | BL | TL | M | T | TR | DOT
   {1, 0, 0, 0, 0, 0, 1, 0}, // 1 ==>  BR | B | BL | TL | M | T | TR | DOT
@@ -124,8 +125,8 @@ const uint8_t bri_vals[3] = { // These need to be multiples of 8 to enable cross
   16, // MEDIUM
   32, // HIGH
 };
-
-const uint8_t pinsToRegisterMap[48] = {
+/*
+  const uint8_t pinsToRegisterMap[48] = {
   0,
   0,
   0,
@@ -174,16 +175,8 @@ const uint8_t pinsToRegisterMap[48] = {
   5,
   5,
   5,
-};
-const uint8_t pinsToBitsMap[48] = {
-  0,
-  1,
-  2,
-  3,
-  4,
-  5,
-  6,
-  7,
+  };
+  const uint8_t pinsToBitsMap[48] = {
   0,
   1,
   2,
@@ -224,20 +217,28 @@ const uint8_t pinsToBitsMap[48] = {
   5,
   6,
   7,
-};
-
+  0,
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  };
+*/
 // Better left alone global vars
 const uint8_t registersCount = 6;
 unsigned long configStartMillis, prevDisplayMillis;
 const uint8_t PixelCount = 12; // make sure to set this to the number of pixels in your strip
 uint8_t deviceMode = NORMAL_MODE;
 bool timeUpdateFirst = true;
-bool toggleSeconds = false;
+volatile bool toggleSeconds;
 byte mac[6];
 volatile uint8_t dutyState = 0;
 volatile uint8_t digitsCache[] = {0, 0, 0, 0};
-volatile uint8_t bytes[6];
-uint8_t bri, crossFadeTime;
+volatile uint8_t bytes[registersCount];
+uint8_t bri = 0, crossFadeTime = 0;
 uint8_t timeUpdateStatus = 0; // 0 = no update, 1 = update success, 2 = update fail,
 uint8_t failedAttempts = 0;
 RgbColor colonColor;
@@ -247,23 +248,17 @@ TimeChangeRule EDT = {"EDT", Last, Sun, Mar, 1, 120};  //UTC + 2 hours
 TimeChangeRule EST = {"EST", Last, Sun, Oct, 1, 60};  //UTC + 1 hours
 Timezone TZ(EDT, EST);
 NeoPixelBus<NeoGrbFeature, NeoWs2813Method> strip(PixelCount);
-NeoPixelAnimator animations(PixelCount);
-RgbColor currentColor;
+//NeoPixelAnimator animations(PixelCount);
 DynamicJsonDocument json(2048); // config buffer
-//ShiftRegister74HC595<6> shift(13, 14, 15);
-Ticker pwm_ticker;
+//Ticker pwm_ticker;
 Ticker fade_animation_ticker;
-Ticker ledsTicker;
 Ticker onceTicker;
 Ticker colonTicker;
 ESP8266Timer ITimer;
 ESP8266WebServer server(80);
-//WiFiClient espClient;
 WiFiUDP Udp;
 ESP8266HTTPUpdateServer httpUpdateServer;
 unsigned int localPort = 8888;  // local port to listen for UDP packets
-
-void ICACHE_RAM_ATTR shiftWriteBytes(byte a1, byte a2, byte a3, byte a4, byte a5, byte a6);
 
 
 // the setup function runs once when you press reset or power the board
@@ -271,14 +266,15 @@ void setup() {
   // initialize digital pin LED_BUILTIN as an output.
   Serial.begin(115200);
 
+  delay(10);
 
   if (!SPIFFS.begin()) {
     Serial.println("SPIFFS: Failed to mount file system");
   }
   readConfig();
 
-  initScreen();
   initStrip();
+  initScreen();
 
   WiFi.macAddress(mac);
 
@@ -302,29 +298,36 @@ void setup() {
     }
 
     // serializeJson(json, Serial);
+    noInterrupts();
+    strip.ClearTo(colorWifiConnecting);
+    interrupts();
+    strip_show();
 
     WiFi.begin(ssid, pass);
 
-    for (int i = 0; i < 500; i++) {
+    //startBlinking(200, colorWifiConnecting);
+
+
+    for (int i = 0; i < 1000; i++) {
       if (WiFi.status() != WL_CONNECTED) {
-        if (i > 100) {
+        if (i > 500) {
           deviceMode = CONFIG_MODE;
+          //colonTicker.detach();
+          strip.ClearTo(colorWifiFail);
+          strip_show();
           Serial.print("WIFI: Failed to connect to: ");
           Serial.print(ssid);
           Serial.println(", going into config mode.");
-          strip.ClearTo(colorWifiFail);
-          strip_show();
           delay(500);
           break;
         }
-        if (i % 2 == 0) {
-          strip.ClearTo(colorWifiConnecting);
-        } else {
-          strip.ClearTo(RgbColor(0, 0, 0));
-        }
-        strip_show();
+        blankAllDigits();
+        setDot(i % 6, 1);
         delay(100);
       } else {
+        //colonTicker.detach();
+        strip.ClearTo(colorWifiSuccess);
+        strip_show();
         Serial.println("WIFI: Connected...");
         Serial.print("WIFI: Connected to: ");
         Serial.println(WiFi.SSID());
@@ -332,9 +335,7 @@ void setup() {
         Serial.println(WiFi.macAddress());
         Serial.print("WIFI: IP address: ");
         Serial.println(WiFi.localIP());
-        strip.ClearTo(colorWifiSuccess);
-        strip_show();
-        delay(500);
+        delay(1000);
         break;
       }
     }
@@ -411,10 +412,11 @@ void loop() {
     */
   }
 
-  delay(1);
-  animations.UpdateAnimations();
+  //animations.UpdateAnimations();
   strip_show();
 
   server.handleClient();
   //MDNS.update();
+  delay(10); // Keeps the ESP cold!
+  
 }

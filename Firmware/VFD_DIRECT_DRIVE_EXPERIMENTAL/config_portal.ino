@@ -21,7 +21,7 @@ void startConfigPortal() {
   configStartMillis = millis(); // start counter
 
   strip.ClearTo(colorConfigMode);
-  strip.Show();
+  strip_show();
 
   String ap_name = AP_NAME + macLastThreeSegments(mac);
   IPAddress ap_ip(10, 10, 10, 1);
@@ -47,8 +47,6 @@ void startConfigPortal() {
       WiFi.softAPdisconnect(true);
       //WiFi.mode(WIFI_STA);
       deviceMode = CONNECTION_FAIL;
-      //strip.ClearTo(RgbColor(50, 0, 0));
-      //strip.Show();
       return;
     }
 
@@ -86,7 +84,7 @@ void handleRoot() {
       digitalWrite(4, 0);
     */
     strip.ClearTo(colorConfigSave);
-    strip.Show();
+    strip_show();
 
     if (server.hasArg("ssid")) {
       json["ssid"] = server.arg("ssid");
@@ -241,7 +239,7 @@ void handleRoot() {
   if (bri == 2) html += " selected";
   html += ">High</option>";
   html += "</select></div>";
-  
+
   html += "<div class=\"row\"><label for=\"colon\">Colon:</label>";
   html += "<select id=\"colon\" name=\"colon\">";
   unsigned int colon = json["colon"].as<unsigned int>();

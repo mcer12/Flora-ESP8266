@@ -1,6 +1,8 @@
 
 void ICACHE_RAM_ATTR shiftSetValue(uint8_t pin, bool value) {
-  (value) ? bitSet(bytes[pinsToRegisterMap[pin]], pinsToBitsMap[pin]) : bitClear(bytes[pinsToRegisterMap[pin]], pinsToBitsMap[pin]);
+  //(value) ? bitSet(bytes[pinsToRegisterMap[pin]], pinsToBitsMap[pin]) : bitClear(bytes[pinsToRegisterMap[pin]], pinsToBitsMap[pin]);
+  (value) ? bitSet(bytes[pin / 8], pin % 8) : bitClear(bytes[pin / 8], pin % 8);
+
 }
 
 /*
@@ -8,9 +10,12 @@ void ICACHE_RAM_ATTR shiftSetValue(uint8_t pin, bool value) {
   (value) ? bitSet(bytes[pin / 8], pin % 8) : bitClear(bytes[pin / 8], pin % 8);
   }
 */
+
 void ICACHE_RAM_ATTR shiftSetAll(bool value) {
   for (int i = 0; i < registersCount * 8; i++) {
-    (value) ? bitSet(bytes[pinsToRegisterMap[i]], pinsToBitsMap[i]) : bitClear(bytes[pinsToRegisterMap[i]], pinsToBitsMap[i]);
+    //(value) ? bitSet(bytes[pinsToRegisterMap[i]], pinsToBitsMap[i]) : bitClear(bytes[pinsToRegisterMap[i]], pinsToBitsMap[i]);
+    (value) ? bitSet(bytes[i / 8], i % 8) : bitClear(bytes[i / 8], i % 8);
+
   }
 }
 
@@ -56,7 +61,7 @@ void initScreen() {
   pinMode(CLOCK, OUTPUT);
   pinMode(LATCH, OUTPUT);
   digitalWrite(LATCH, LOW);
-  
+
   bri = json["bri"].as<int>();
   crossFadeTime = json["fade"].as<int>();
 
@@ -75,6 +80,13 @@ void initScreen() {
   }
 
   blankAllDigits();
+}
+
+void enableScreen() {
+  ITimer.attachInterruptInterval(TIMER_INTERVAL_uS, TimerHandler);
+}
+void disableScreen() {
+  ITimer.detachInterrupt();
 }
 /*
   void handlePWM() {
@@ -114,17 +126,7 @@ void handleFade() {
 }
 
 void setDigit(uint8_t digit, uint8_t value) {
-  if (digit > 5) return;
-
-  for (int i = 0; i < 8; i++) {
-    //shift.setNoUpdate(digitPins[5 - digit][i], numbers[value][i]);
-    if (numbers[value][i] == 1) {
-      targetBrightness[digit][i] = bri_vals[bri];
-    } else {
-      targetBrightness[digit][i] = 0;
-    }
-  }
-
+  draw(digit, numbers[value]);
 }
 
 void setAllDigitsTo(uint16_t value) {
@@ -134,26 +136,36 @@ void setAllDigitsTo(uint16_t value) {
 }
 
 void setDot(uint8_t digit, bool enable) {
-  targetBrightness[digit][7] = bri_vals[bri];
+
+  if (enable) {
+    targetBrightness[digit][7] = bri_vals[bri];
+  } else {
+    targetBrightness[digit][7] = 0;
+  }
 
 }
 
 void draw(uint8_t digit, uint8_t value[8]) {
-  for (int ii = 0; ii < 8; ii++) {
-    targetBrightness[digit][ii] = value[ii];
+
+  for (int i = 0; i < 8; i++) {
+    if (value[i] == 1) {
+      targetBrightness[digit][i] = bri_vals[bri];
+    } else {
+      targetBrightness[digit][i] = 0;
+    }
   }
+
 }
 
 
 void blankDigit(uint8_t digit) {
   for (int i = 0; i < sizeof(digitPins[digit]); i++) {
-    //shift.set(digitPins[5 - digit][i], 0);
     targetBrightness[digit][i] = 0;
   }
 }
 
 void blankAllDigits() {
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < 6; i++) {
     blankDigit(i);
   }
 }
@@ -217,10 +229,10 @@ void showIP(int delay_ms) {
   setDigit(5, (ip_addr[3]) % 10);
 
   strip.ClearTo(colorStartupDisplay);
-  strip.Show();
+  strip_show();
   delay(delay_ms);
   strip.ClearTo(RgbColor(0, 0, 0));
-  strip.Show();
+  strip_show();
 }
 
 void toggleNightMode() {
