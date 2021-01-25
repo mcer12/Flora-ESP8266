@@ -43,8 +43,8 @@
 
 // User global vars
 const char* update_path = "/update";
-const char* update_username = "nick";
-const char* update_password = "nick";
+const char* update_username = "flora";
+const char* update_password = "flora";
 const char* ntpServerName = "pool.ntp.org";
 RgbColor colorConfigMode = RgbColor(60, 0, 60);
 RgbColor colorConfigSave = RgbColor(0, 0, 60);
