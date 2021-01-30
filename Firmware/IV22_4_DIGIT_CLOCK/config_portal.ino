@@ -59,12 +59,12 @@ void startConfigPortal() {
         (second(remainingSeconds) / 10) % 10,
         second(remainingSeconds) % 10,
       };
-      for (int i = 0; i < 6; i++) {
-        if (i < 4 && splitTime[i] == 0) {
+      for (int i = 0; i < registersCount; i++) {
+        if (i < 4 && splitTime[i] == 0 && registersCount > 4) {
           blankDigit(i);
           continue;
         }
-        setDigit(i, splitTime[i]);
+        setDigit(registersCount - 1 - i, splitTime[5 - i]);
       }
       lastTest = millis();
     }
