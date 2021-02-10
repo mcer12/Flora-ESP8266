@@ -10,7 +10,7 @@
 endobj
 4 0 obj
 <<
-/Length 275692
+/Length 275897
 >>
 stream
 0.20 w
@@ -13452,8 +13452,8 @@ BT
 /F1 12 Tf
 12.00 TL
 0.000 0.800 0.000 rg
-2795.40 259.30 Td
-(180K R2 + 100K R1 can be used to set votlage to 0.9V) Tj
+2795.40 234.30 Td
+(100K R2 + 100K R1 => 1.2V) Tj
 ET
 BT
 /F3 12 Tf
@@ -17232,7 +17232,7 @@ BT
 /F1 12 Tf
 12.00 TL
 0.000 0.800 0.000 rg
-1785.40 234.30 Td
+1785.40 249.30 Td
 (Absolute max voltage is 28V but it's good to stay below 25V) Tj
 ET
 10.00 w
@@ -17240,8 +17240,8 @@ BT
 /F1 12 Tf
 12.00 TL
 0.000 0.800 0.000 rg
-1785.40 214.30 Td
-(21-23V works fine with reasonable brightness and reasonable MT3608 temperature) Tj
+1785.40 234.30 Td
+(20-23V works fine with reasonable brightness and reasonable MT3608 temperature) Tj
 ET
 1 J
 1 j
@@ -23489,8 +23489,48 @@ BT
 /F1 12 Tf
 12.00 TL
 0.000 0.800 0.000 rg
-1785.40 194.30 Td
+1785.40 204.30 Td
 (Use inductors with rating of 2A or higher, C357083 should also work well) Tj
+ET
+10.00 w
+BT
+/F1 12 Tf
+12.00 TL
+0.000 0.800 0.000 rg
+770.40 784.30 Td
+(TBD62783AFG \(C97745\) is a modern pin-compatible replacement with lower power consumption, recommended! Cheap chinese 1:1 clone XL62783 also available \(C556260\)) Tj
+ET
+10.00 w
+BT
+/F1 12 Tf
+12.00 TL
+0.000 0.800 0.000 rg
+3025.40 799.30 Td
+(You will need 2x 16pin header + 2x 8pin header, both male and female) Tj
+ET
+10.00 w
+BT
+/F1 12 Tf
+12.00 TL
+0.000 0.800 0.000 rg
+770.40 764.30 Td
+(48x golden pin sockets are needed, you can get them on ebay, search for "IN-12 nixie pins" :\)) Tj
+ET
+10.00 w
+BT
+/F1 12 Tf
+12.00 TL
+0.000 0.800 0.000 rg
+1785.40 219.30 Td
+(I personally had good results with 20V + 1.2V filament or 23V + 1.0V filament) Tj
+ET
+10.00 w
+BT
+/F1 12 Tf
+12.00 TL
+0.000 0.800 0.000 rg
+2795.40 249.30 Td
+(100K R2 + 75K R1 => 1.0V) Tj
 ET
 10.00 w
 BT
@@ -23498,7 +23538,7 @@ BT
 9.00 TL
 0.000 0.000 0.502 rg
 2070.20 451.63 Td
-(22uH) Tj
+(10uH) Tj
 ET
 10.00 w
 BT
@@ -23513,36 +23553,10 @@ ET
 1.00 w
 0.53 0.00 0.00 RG
 [] 0 d
-2095.400 444.300 m 
-2092.400 444.300 l
-S
-1 J
-1 j
-1.00 w
-0.53 0.00 0.00 RG
-[] 0 d
-2055.400 444.300 m 
-2058.400 444.300 l
-S
-1 J
-1 j
-1.00 w
-0.53 0.00 0.00 RG
-[] 0 d
-2058.517 444.368 m 
-2058.31 446.51 2059.93 448.41 2062.13 448.61 c
-2064.33 448.81 2066.28 447.24 2066.48 445.09 c
-2066.51 444.85 2066.51 444.61 2066.48 444.36 c
-S
-1 J
-1 j
-1.00 w
-0.53 0.00 0.00 RG
-[] 0 d
-2067.000 444.371 m 
-2066.80 446.52 2068.41 448.42 2070.61 448.62 c
-2072.81 448.82 2074.76 447.24 2074.97 445.09 c
-2074.99 444.85 2074.99 444.61 2074.97 444.37 c
+2084.100 444.369 m 
+2083.90 446.51 2085.51 448.41 2087.71 448.61 c
+2089.91 448.81 2091.86 447.24 2092.07 445.09 c
+2092.09 444.85 2092.09 444.61 2092.07 444.36 c
 S
 1 J
 1 j
@@ -23559,42 +23573,44 @@ S
 1.00 w
 0.53 0.00 0.00 RG
 [] 0 d
-2084.100 444.369 m 
-2083.90 446.51 2085.51 448.41 2087.71 448.61 c
-2089.91 448.81 2091.86 447.24 2092.07 445.09 c
-2092.09 444.85 2092.09 444.61 2092.07 444.36 c
+2067.000 444.371 m 
+2066.80 446.52 2068.41 448.42 2070.61 448.62 c
+2072.81 448.82 2074.76 447.24 2074.97 445.09 c
+2074.99 444.85 2074.99 444.61 2074.97 444.37 c
+S
+1 J
+1 j
+1.00 w
+0.53 0.00 0.00 RG
+[] 0 d
+2058.517 444.368 m 
+2058.31 446.51 2059.93 448.41 2062.13 448.61 c
+2064.33 448.81 2066.28 447.24 2066.48 445.09 c
+2066.51 444.85 2066.51 444.61 2066.48 444.36 c
+S
+1 J
+1 j
+1.00 w
+0.53 0.00 0.00 RG
+[] 0 d
+2055.400 444.300 m 
+2058.400 444.300 l
+S
+1 J
+1 j
+1.00 w
+0.53 0.00 0.00 RG
+[] 0 d
+2095.400 444.300 m 
+2092.400 444.300 l
 S
 10.00 w
 BT
 /F1 12 Tf
 12.00 TL
 0.000 0.800 0.000 rg
-2795.40 239.30 Td
-(Set to 1V by default, something around 1.1V might also work well with IV22) Tj
-ET
-10.00 w
-BT
-/F1 12 Tf
-12.00 TL
-0.000 0.800 0.000 rg
-770.40 784.30 Td
-(TBD62783AFG \(C97745\) is a modern pin-compatible replacement with lower power consumption, recommended! Cheap chinese 1:1 clone XL62783 also available \(C556260\)) Tj
-ET
-10.00 w
-BT
-/F1 12 Tf
-12.00 TL
-0.000 0.800 0.000 rg
-3025.40 799.30 Td
-(You will need 2x 16pin header + 2x 8pin header, male + female) Tj
-ET
-10.00 w
-BT
-/F1 12 Tf
-12.00 TL
-0.000 0.800 0.000 rg
-770.40 764.30 Td
-(48x golden pin sockets are needed, you can get them on ebay, search for "IN-12 nixie pins" :\)) Tj
+1785.40 189.30 Td
+(SX1308 can also be used 1:1 pin compatible) Tj
 ET
 0.80 0.00 0.00 rg
 182.90 339.30 m 182.90 340.68 181.78 341.80 180.40 341.80 c
@@ -24003,7 +24019,7 @@ endobj
 10 0 obj
 <<
 /Producer (jsPDF 0.0.0)
-/CreationDate (D:20210130152110+01'00')
+/CreationDate (D:20210210160415+01'00')
 >>
 endobj
 11 0 obj
@@ -24017,24 +24033,24 @@ endobj
 xref
 0 12
 0000000000 65535 f 
-0000275872 00000 n 
-0000278493 00000 n 
+0000276077 00000 n 
+0000278698 00000 n 
 0000000015 00000 n 
 0000000126 00000 n 
-0000275929 00000 n 
-0000276099 00000 n 
-0000277153 00000 n 
-0000277322 00000 n 
-0000278366 00000 n 
-0000278617 00000 n 
-0000278703 00000 n 
+0000276134 00000 n 
+0000276304 00000 n 
+0000277358 00000 n 
+0000277527 00000 n 
+0000278571 00000 n 
+0000278822 00000 n 
+0000278908 00000 n 
 trailer
 <<
 /Size 12
 /Root 11 0 R
 /Info 10 0 R
-/ID [ <522AB0C306829771B0A3656AFFCCDEE5> <522AB0C306829771B0A3656AFFCCDEE5> ]
+/ID [ <0DAB20D097EA6F25CC0B693BAC9CE469> <0DAB20D097EA6F25CC0B693BAC9CE469> ]
 >>
 startxref
-278807
+279012
 %%EOF
