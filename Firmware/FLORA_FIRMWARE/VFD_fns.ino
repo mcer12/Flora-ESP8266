@@ -2,7 +2,6 @@
 void ICACHE_RAM_ATTR shiftSetValue(uint8_t pin, bool value) {
   //(value) ? bitSet(bytes[pinsToRegisterMap[pin]], pinsToBitsMap[pin]) : bitClear(bytes[pinsToRegisterMap[pin]], pinsToBitsMap[pin]);
   (value) ? bitSet(bytes[pin / 8], pin % 8) : bitClear(bytes[pin / 8], pin % 8);
-
 }
 
 /*
@@ -15,18 +14,14 @@ void ICACHE_RAM_ATTR shiftSetAll(bool value) {
   for (int i = 0; i < registersCount * 8; i++) {
     //(value) ? bitSet(bytes[pinsToRegisterMap[i]], pinsToBitsMap[i]) : bitClear(bytes[pinsToRegisterMap[i]], pinsToBitsMap[i]);
     (value) ? bitSet(bytes[i / 8], i % 8) : bitClear(bytes[i / 8], i % 8);
-
   }
 }
 
-void ICACHE_RAM_ATTR shiftWriteBytes(byte a1, byte a2, byte a3, byte a4, byte a5, byte a6) {
+void ICACHE_RAM_ATTR shiftWriteBytes(volatile byte *data) {
 
-  SPI.transfer(a1);
-  SPI.transfer(a2);
-  SPI.transfer(a3);
-  SPI.transfer(a4);
-  SPI.transfer(a5);
-  SPI.transfer(a6);
+  for (int i; i < registersCount; i++) {
+    SPI.transfer(data[registersCount - 1 - i]);
+  }
 
   // set gpio through register manipulation, fast!
   GPOS = 1 << LATCH;
@@ -35,11 +30,12 @@ void ICACHE_RAM_ATTR shiftWriteBytes(byte a1, byte a2, byte a3, byte a4, byte a5
     digitalWrite(LATCH, HIGH);
     digitalWrite(LATCH, LOW);
   */
+
 }
 
 void ICACHE_RAM_ATTR TimerHandler()
 {
-  for (int i = 0; i < 6; i++) {
+  for (int i = 0; i < registersCount; i++) {
     for (int ii = 0; ii < 8; ii++) {
       if (dutyState < segmentBrightness[i][ii]) {
         shiftSetValue(digitPins[i][ii], true);
@@ -49,7 +45,7 @@ void ICACHE_RAM_ATTR TimerHandler()
     }
   }
 
-  shiftWriteBytes(bytes[5], bytes[4], bytes[3], bytes[2], bytes[1], bytes[0]); // Digits are reversed (first shift register = last digit etc.)
+  shiftWriteBytes(bytes); // Digits are reversed (first shift register = last digit etc.)
 
   if (dutyState >= pwmResolution) dutyState = 0;
   else dutyState++;
@@ -108,14 +104,14 @@ void disableScreen() {
   }
 */
 void handleFade() {
-  for (int i = 0; i < 6; i++) {
+  for (int i = 0; i < registersCount; i++) {
     for (int ii = 0; ii < 8; ii++) {
       if (crossFadeTime > 0) {
         if (targetBrightness[i][ii] > segmentBrightness[i][ii]) {
-          segmentBrightness[i][ii] += bri_vals[bri] / 8;
+          segmentBrightness[i][ii] += bri_vals[bri] / dimmingSteps;
           if (segmentBrightness[i][ii] > bri_vals[bri]) segmentBrightness[i][ii] = bri_vals[bri];
         } else if (targetBrightness[i][ii] < segmentBrightness[i][ii]) {
-          segmentBrightness[i][ii] -= bri_vals[bri] / 8;
+          segmentBrightness[i][ii] -= bri_vals[bri] / dimmingSteps;
           if (segmentBrightness[i][ii] < 0) segmentBrightness[i][ii] = 0;
         }
       } else {
@@ -130,33 +126,10 @@ void setDigit(uint8_t digit, uint8_t value) {
 }
 
 void setAllDigitsTo(uint16_t value) {
-  for (int i = 0; i < 6; i++) {
+  for (int i = 0; i < registersCount; i++) {
     setDigit(i, value);
   }
 }
-
-void setDot(uint8_t digit, bool enable) {
-
-  if (enable) {
-    targetBrightness[digit][7] = bri_vals[bri];
-  } else {
-    targetBrightness[digit][7] = 0;
-  }
-
-}
-
-void draw(uint8_t digit, uint8_t value[8]) {
-
-  for (int i = 0; i < 8; i++) {
-    if (value[i] == 1) {
-      targetBrightness[digit][i] = bri_vals[bri];
-    } else {
-      targetBrightness[digit][i] = 0;
-    }
-  }
-
-}
-
 
 void blankDigit(uint8_t digit) {
   for (int i = 0; i < sizeof(digitPins[digit]); i++) {
@@ -165,16 +138,36 @@ void blankDigit(uint8_t digit) {
 }
 
 void blankAllDigits() {
-  for (int i = 0; i < 6; i++) {
+  for (int i = 0; i < registersCount; i++) {
     blankDigit(i);
   }
 }
 
+void setDot(uint8_t digit, bool enable) {
+  if (enable) {
+    targetBrightness[digit][7] = bri_vals[bri];
+  } else {
+    targetBrightness[digit][7] = 0;
+  }
+}
+
+void draw(uint8_t digit, uint8_t value[8]) {
+  for (int i = 0; i < 8; i++) {
+    if (value[i] == 1) {
+      targetBrightness[digit][i] = bri_vals[bri];
+    } else {
+      targetBrightness[digit][i] = 0;
+    }
+  }
+}
+
 void showTime() {
+
   int hours = hour();
   if (hours > 12 && json["t_format"].as<int>() == 0) { // 12 / 24 h format
     hours -= 12;
   }
+
   int splitTime[6] = {
     (hours / 10) % 10,
     hours % 10,
@@ -184,49 +177,63 @@ void showTime() {
     second() % 10,
   };
 
-  for (int i = 0; i < 6; i++) {
+  for (int i = 0; i < registersCount ; i++) {
     if (i == 0 && splitTime[0] == 0 && json["zero"].as<int>() == 0) {
       blankDigit(i);
       continue;
     }
     setDigit(i, splitTime[i]);
   }
+
 }
 
 void cycleDigits() {
   strip.ClearTo(colorStartupDisplay);
   strip.Show();
+
   for (int i = 0; i < 10; i++) {
-    setDigit(0, i);
-    setDigit(1, i);
-    setDigit(2, i);
-    setDigit(3, i);
-    setDigit(4, i);
-    setDigit(5, i);
+    for (int ii = 0; ii < registersCount; ii++) {
+      setDigit(ii, i);
+    }
     delay(1000);
   }
+
   strip.ClearTo(RgbColor(0, 0, 0));
   strip.Show();
 }
 
 void showIP(int delay_ms) {
   IPAddress ip_addr = WiFi.localIP();
-  setDigit(0, 1);
-  draw(1, letter_p);
 
-  blankDigit(2);
-
-  if ((ip_addr[3] / 100) % 10 == 0) {
-    blankDigit(3);
+  if (registersCount < 6) {
+    blankDigit(0);
+    if ((ip_addr[3] / 100) % 10 == 0) {
+      blankDigit(1);
+    } else {
+      setDigit(1, (ip_addr[3] / 100) % 10);
+    }
+    if ((ip_addr[3] / 10) % 10 == 0) {
+      blankDigit(2);
+    } else {
+      setDigit(2, (ip_addr[3] / 10) % 10);
+    }
+    setDigit(3, (ip_addr[3]) % 10);
   } else {
-    setDigit(3, (ip_addr[3] / 100) % 10);
+    setDigit(0, 1);
+    draw(1, letter_p);
+    blankDigit(2);
+    if ((ip_addr[3] / 100) % 10 == 0) {
+      blankDigit(3);
+    } else {
+      setDigit(3, (ip_addr[3] / 100) % 10);
+    }
+    if ((ip_addr[3] / 10) % 10 == 0) {
+      blankDigit(4);
+    } else {
+      setDigit(4, (ip_addr[3] / 10) % 10);
+    }
+    setDigit(5, (ip_addr[3]) % 10);
   }
-  if ((ip_addr[3] / 10) % 10 == 0) {
-    blankDigit(4);
-  } else {
-    setDigit(4, (ip_addr[3] / 10) % 10);
-  }
-  setDigit(5, (ip_addr[3]) % 10);
 
   strip.ClearTo(colorStartupDisplay);
   strip_show();
@@ -243,15 +250,3 @@ void toggleNightMode() {
   }
   bri = json["bri"].as<int>();
 }
-/*
-  void healingCycle() {
-  strip.ClearTo(RgbColor(0, 0, 0)); // red
-  strip.Show();
-
-  for (int i = 0; i < 4; i++) {
-    setDigit(i, healPattern[i][healIterator]);
-  }
-  healIterator++;
-  if (healIterator > 9) healIterator = 0;
-  }
-*/

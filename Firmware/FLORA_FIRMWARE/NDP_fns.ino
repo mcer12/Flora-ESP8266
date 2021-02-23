@@ -10,11 +10,15 @@ time_t getNtpTime()
   while (Udp.parsePacket() > 0) ; // discard any previously received packets
   //Serial.println("Transmit NTP Request");
   // get a random server from the pool
-  WiFi.hostByName(ntpServerName, ntpServerIP);
-  Serial.print("NTP: Connecting to ");
-  Serial.println(ntpServerName);
-  //Serial.print(": ");
-  //Serial.println(ntpServerIP);
+  const char* server = json["ntp"].as<const char*>();
+  if (server == NULL || server[0] == '\0') {
+    server = ntpServerName;
+  }
+  Serial.print("NTP: Connecting to server ");
+  Serial.println(server);
+  WiFi.hostByName(server, ntpServerIP);
+  Serial.print("NTP: Server IP: ");
+  Serial.println(ntpServerIP);
   sendNTPpacket(ntpServerIP);
   uint32_t beginWait = millis();
   while (millis() - beginWait < 1500) {
@@ -61,9 +65,12 @@ time_t getNtpLocalTime() {
   timeUpdateStatus = UPDATE_SUCCESS;
   failedAttempts = 0;
 
-  if (json["dst_enable"].as<int>() == 1) {
+  /*
+    if (json["dst_enable"].as<int>() == 1) {
     return receivedTime + (json["std_offset"].as<int>() * 60);
-  }
+    }
+  */
+
   return TZ.toLocal(receivedTime);
 
 }

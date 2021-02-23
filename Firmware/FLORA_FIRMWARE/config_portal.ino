@@ -21,7 +21,7 @@ void startConfigPortal() {
   configStartMillis = millis(); // start counter
 
   strip.ClearTo(colorConfigMode);
-  strip.Show();
+  strip_show();
 
   String ap_name = AP_NAME + macLastThreeSegments(mac);
   IPAddress ap_ip(10, 10, 10, 1);
@@ -47,8 +47,6 @@ void startConfigPortal() {
       WiFi.softAPdisconnect(true);
       //WiFi.mode(WIFI_STA);
       deviceMode = CONNECTION_FAIL;
-      //strip.ClearTo(RgbColor(50, 0, 0));
-      //strip.Show();
       return;
     }
 
@@ -61,12 +59,12 @@ void startConfigPortal() {
         (second(remainingSeconds) / 10) % 10,
         second(remainingSeconds) % 10,
       };
-      for (int i = 0; i < 6; i++) {
-        if (i < 4 && splitTime[i] == 0) {
+      for (int i = 0; i < registersCount; i++) {
+        if (i < 4 && splitTime[i] == 0 && registersCount > 4) {
           blankDigit(i);
           continue;
         }
-        setDigit(i, splitTime[i]);
+        setDigit(registersCount - 1 - i, splitTime[5 - i]);
       }
       lastTest = millis();
     }
@@ -86,7 +84,7 @@ void handleRoot() {
       digitalWrite(4, 0);
     */
     strip.ClearTo(colorConfigSave);
-    strip.Show();
+    strip_show();
 
     if (server.hasArg("ssid")) {
       json["ssid"] = server.arg("ssid");
@@ -117,6 +115,12 @@ void handleRoot() {
     if (server.hasArg("bri")) {
       json["bri"] = server.arg("bri");
     }
+    if (server.hasArg("fade")) {
+      json["fade"] = server.arg("fade");
+    }
+    if (server.hasArg("colon")) {
+      json["colon"] = server.arg("colon");
+    }
     if (server.hasArg("nmode")) {
       json["nmode"] = server.arg("nmode");
     }
@@ -128,6 +132,9 @@ void handleRoot() {
     }
     if (server.hasArg("rst_ip")) {
       json["rst_ip"] = server.arg("rst_ip");
+    }
+    if (server.hasArg("ntp")) {
+      json["ntp"] = server.arg("ntp");
     }
     if (server.hasArg("std_offset")) {
       json["std_offset"] = server.arg("std_offset");
@@ -168,8 +175,8 @@ void handleRoot() {
 
   }
 
-  // BLUE THEME FOR VFD String html = "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>NICK IN-12</title><style>html,body{margin:0;padding:0;font-size:16px;background:#333;}body,*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,\"Helvetica Neue\",Arial,sans-serif;}a{color:inherit;text-decoration:underline;}.wrapper{padding:30px 0;}.container{margin:auto;padding:40px;max-width:600px;color:#fff;background:#000;box-shadow:0 0 100px rgba(0,0,0,.5);border: 10px solid #444;border-radius:50px;}.row{margin-bottom:15px;}.flexrow{display:flex;justify-items:stretch;align-items:flex-start;flex-wrap:wrap;margin-left:-10px;}.col{width:25%;padding-left:10px;}h1{margin:0 0 10px 0;font-family:Arial,sans-serif;font-weight:300;font-size:2rem;}h1 + p{margin-bottom:30px;}h2{margin:30px 0 0 0;font-family:Arial,sans-serif;font-weight:300;font-size:1.5rem;}h3{font-family:Arial,sans-serif;font-weight:300;font-size:1.2rem;margin: 25px 0 10px 0;}p{font-size:.85rem;margin:0 0 20px 0;color:rgba(255,255,255,.7);}label{display:block;width:100%;margin-bottom:5px;}label+p{margin-bottom:5px;}input[type=\"text\"],input[type=\"number\"],input[type=\"password\"],select{display:inline-block;width:100%;height:42px;line-height:38px;padding:0 20px;color:#fff;border:2px solid #666;background:none;border-radius:5px;transition:.15s;box-shadow:none;outline:none;}input[type=\"text\"]:hover,input[type=\"number\"]:hover,input[type=\"password\"]:hover,select:hover{border-color:#69b6ac;}input[type=\"text\"]:focus,input[type=\"password\"]:focus,select:focus{border-color:#a5fff3;}option{color:#000;}button{display:block;width:100%;padding:10px 20px;font-size:1rem;font-weight:700;text-transform:uppercase;background:#43ffe5;border:0;border-radius:5px;cursor:pointer;transition:.15s;outline:none;}button:hover{background:#a5fff3;}.github{padding:15px;text-align:center;}.github a{color:#43ffe5;transition:.15s;}.github a:hover{color:#a5fff3;}.github p{margin:0;}.mac{display:inline-block;margin-top:8px;padding:2px 5px;color:#fff;background:#444;border-radius:3px;}</style><style media=\"all and (max-width:520px)\">.wrapper{padding:0;}.container{padding:25px 15px;border:0;border-radius:0;}.col{width:50%;}</style></head><body><div class=\"wrapper\">";
-  String html = "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>NICK IN-12</title><style>html,body{margin:0;padding:0;font-size:16px;background:#333;}body,*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,\"Helvetica Neue\",Arial,sans-serif;}a{color:inherit;text-decoration:underline;}.wrapper{padding:30px 0;}.container{margin:auto;padding:40px;max-width:500px;color:#fff;background:#000;box-shadow:0 0 100px rgba(0,0,0,.5);border: 10px solid #444;border-radius:50px;}.row{margin-bottom:15px;}.flexrow{display:flex;justify-items:stretch;align-items:flex-start;margin-left:-10px;flex-wrap:wrap;}.col{width:25%;padding-left:10px;}h1{margin:0 0 10px 0;font-family:Arial,sans-serif;font-weight:300;font-size:2rem;}h1 + p{margin-bottom:30px;}h2{margin:30px 0 0 0;font-family:Arial,sans-serif;font-weight:300;font-size:1.5rem;}h3{font-family:Arial,sans-serif;font-weight:300;font-size:1.2rem;margin: 25px 0 10px 0;}p{font-size:.85rem;margin:0 0 20px 0;color:rgba(255,255,255,.7);}label{display:block;width:100%;margin-bottom:5px;}label+p{margin-bottom:5px;}input[type=\"text\"],input[type=\"number\"],input[type=\"password\"],select{display:inline-block;width:100%;height:42px;line-height:38px;padding:0 20px;color:#fff;border:2px solid #666;background:none;border-radius:5px;transition:.15s;box-shadow:none;outline:none;}input[type=\"text\"]:hover,input[type=\"number\"]:hover,input[type=\"password\"]:hover,select:hover{border-color:#b1734f;}input[type=\"text\"]:focus,input[type=\"password\"]:focus,select:focus{border-color:#ffb78e;}option{color:#000;}button{display:block;width:100%;padding:10px 20px;font-size:1rem;font-weight:700;text-transform:uppercase;background:#ffa46f;border:0;border-radius:5px;cursor:pointer;transition:.15s;outline:none;}button:hover{background:#ffb78e;}.github{padding:15px;text-align:center;}.github a{color:#ffa46f;transition:.15s;}.github a:hover{color:#ffb78e;}.github p{margin:0;}.mac{display:inline-block;margin-top:8px;padding:2px 5px;color:#fff;background:#444;border-radius:3px;}</style><style media=\"all and (max-width:520px)\">.wrapper{padding:0;}.container{padding:25px 15px;border:0;border-radius:0;}.col{width:50%;}</style></head><body><div class=\"wrapper\">";
+  // BLUE THEME FOR VFD String html = "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>FLORA IN-12</title><style>html,body{margin:0;padding:0;font-size:16px;background:#333;}body,*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,\"Helvetica Neue\",Arial,sans-serif;}a{color:inherit;text-decoration:underline;}.wrapper{padding:30px 0;}.container{margin:auto;padding:40px;max-width:600px;color:#fff;background:#000;box-shadow:0 0 100px rgba(0,0,0,.5);border: 10px solid #444;border-radius:50px;}.row{margin-bottom:15px;}.flexrow{display:flex;justify-items:stretch;align-items:flex-start;flex-wrap:wrap;margin-left:-10px;}.col{width:25%;padding-left:10px;}h1{margin:0 0 10px 0;font-family:Arial,sans-serif;font-weight:300;font-size:2rem;}h1 + p{margin-bottom:30px;}h2{margin:30px 0 0 0;font-family:Arial,sans-serif;font-weight:300;font-size:1.5rem;}h3{font-family:Arial,sans-serif;font-weight:300;font-size:1.2rem;margin: 25px 0 10px 0;}p{font-size:.85rem;margin:0 0 20px 0;color:rgba(255,255,255,.7);}label{display:block;width:100%;margin-bottom:5px;}label+p{margin-bottom:5px;}input[type=\"text\"],input[type=\"number\"],input[type=\"password\"],select{display:inline-block;width:100%;height:42px;line-height:38px;padding:0 20px;color:#fff;border:2px solid #666;background:none;border-radius:5px;transition:.15s;box-shadow:none;outline:none;}input[type=\"text\"]:hover,input[type=\"number\"]:hover,input[type=\"password\"]:hover,select:hover{border-color:#69b6ac;}input[type=\"text\"]:focus,input[type=\"password\"]:focus,select:focus{border-color:#a5fff3;}option{color:#000;}button{display:block;width:100%;padding:10px 20px;font-size:1rem;font-weight:700;text-transform:uppercase;background:#43ffe5;border:0;border-radius:5px;cursor:pointer;transition:.15s;outline:none;}button:hover{background:#a5fff3;}.github{padding:15px;text-align:center;}.github a{color:#43ffe5;transition:.15s;}.github a:hover{color:#a5fff3;}.github p{margin:0;}.mac{display:inline-block;margin-top:8px;padding:2px 5px;color:#fff;background:#444;border-radius:3px;}</style><style media=\"all and (max-width:520px)\">.wrapper{padding:0;}.container{padding:25px 15px;border:0;border-radius:0;}.col{width:50%;}</style></head><body><div class=\"wrapper\">";
+  String html = "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1,maximum-scale=1\"><title>FLORA IN-12</title><style>html,body{margin:0;padding:0;font-size:16px;background:#333;}body,*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,\"Helvetica Neue\",Arial,sans-serif;}a{color:inherit;text-decoration:underline;}.wrapper{padding:30px 0;}.container{margin:auto;padding:40px;max-width:500px;color:#fff;background:#000;box-shadow:0 0 100px rgba(0,0,0,.5);border: 10px solid #444;border-radius:50px;}.row{margin-bottom:15px;}.flexrow{display:flex;justify-items:stretch;align-items:flex-start;margin-left:-10px;flex-wrap:wrap;}.col{width:25%;padding-left:10px;}h1{margin:0 0 10px 0;font-family:Arial,sans-serif;font-weight:300;font-size:2rem;}h1 + p{margin-bottom:30px;}h2{margin:30px 0 0 0;font-family:Arial,sans-serif;font-weight:300;font-size:1.5rem;}h3{font-family:Arial,sans-serif;font-weight:300;font-size:1.2rem;margin: 25px 0 10px 0;}p{font-size:.85rem;margin:0 0 20px 0;color:rgba(255,255,255,.7);}label{display:block;width:100%;margin-bottom:5px;}label+p{margin-bottom:5px;}input[type=\"text\"],input[type=\"number\"],input[type=\"password\"],select{display:inline-block;width:100%;height:42px;line-height:38px;padding:0 20px;color:#fff;border:2px solid #666;background:none;border-radius:5px;transition:.15s;box-shadow:none;outline:none;}input[type=\"text\"]:hover,input[type=\"number\"]:hover,input[type=\"password\"]:hover,select:hover{border-color:#b1734f;}input[type=\"text\"]:focus,input[type=\"password\"]:focus,select:focus{border-color:#ffb78e;}option{color:#000;}button{display:block;width:100%;padding:10px 20px;font-size:1rem;font-weight:700;text-transform:uppercase;background:#ffa46f;border:0;border-radius:5px;cursor:pointer;transition:.15s;outline:none;}button:hover{background:#ffb78e;}.github{padding:15px;text-align:center;}.github a{color:#ffa46f;transition:.15s;}.github a:hover{color:#ffb78e;}.github p{margin:0;}.mac{display:inline-block;margin-top:8px;padding:2px 5px;color:#fff;background:#444;border-radius:3px;}</style><style media=\"all and (max-width:520px)\">.wrapper{padding:0;}.container{padding:25px 15px;border:0;border-radius:0;}.col{width:50%;}</style></head><body><div class=\"wrapper\">";
   html += "<div class=\"container\"> <form method=\"post\" action=\"/\">";
   html += "<h1>FLORA - Wi-Fi VFD Clock</h1> <p></p>";
 
@@ -236,6 +243,37 @@ void handleRoot() {
   html += ">High</option>";
   html += "</select></div>";
 
+  html += "<div class=\"row\"><label for=\"colon\">Colon:</label>";
+  html += "<select id=\"colon\" name=\"colon\">";
+  unsigned int colon = json["colon"].as<unsigned int>();
+  html += "<option value=\"0\"";
+  if (colon == 0) html += " selected";
+  html += ">Off</option>";
+  html += "<option value=\"1\"";
+  if (colon == 1) html += " selected";
+  html += ">Always ON</option>";
+  html += "<option value=\"2\"";
+  if (colon == 2) html += " selected";
+  html += ">ON/OFF each second</option>";
+  html += "</select></div>";
+
+  html += "<div class=\"row\"><label for=\"fade\">Crossfade animation:</label>";
+  html += "<select id=\"fade\" name=\"fade\">";
+  unsigned int fade = json["fade"].as<unsigned int>();
+  html += "<option value=\"30\"";
+  if (fade == 30) html += " selected";
+  html += ">Slow</option>";
+  html += "<option value=\"20\"";
+  if (fade == 20) html += " selected";
+  html += ">Medium</option>";
+  html += "<option value=\"15\"";
+  if (fade == 15) html += " selected";
+  html += ">Fast</option>";
+  html += "<option value=\"0\"";
+  if (fade == 0) html += " selected";
+  html += ">Disable</option>";
+  html += "</select></div>";
+
   html += "<div class=\"row\"><label for=\"nmode\">Night mode:</label>";
   html += "<select id=\"nmode\" name=\"nmode\">";
   unsigned int nmode = json["nmode"].as<unsigned int>();
@@ -248,20 +286,6 @@ void handleRoot() {
   //html += "<option value=\"2\"";
   //if (nmode == 2) html += " selected";
   //html += ">Clock OFF between 22:00-06:00</option>";
-  html += "</select></div>";
-
-  html += "<div class=\"row\"><label for=\"cathode\">Cathode poisoning prevention:</label>";
-  html += "<select id=\"cathode\" name=\"cathode\">";
-  unsigned int cathode = json["cathode"].as<unsigned int>();
-  html += "<option value=\"0\"";
-  if (cathode == 0) html += " selected";
-  html += ">None</option>";
-  html += "<option value=\"1\"";
-  if (cathode == 1) html += " selected";
-  html += ">10min cycle every hour between 2-6 AM</option>";
-  html += "<option value=\"2\"";
-  if (cathode == 2) html += " selected";
-  html += ">10min cycle every hour between 2-6 AM + 60s cycle every hour (recommended)</option>";
   html += "</select></div>";
 
   html += "<div class=\"row\"><label for=\"rst_cycle\">Cycle through digits after every reset:</label>";
@@ -286,9 +310,20 @@ void handleRoot() {
   html += ">Yes</option>";
   html += "</select></div>";
 
+  html += "<div class=\"row\"><label for=\"ntp\">NTP server address or IP</label>";
+  html += "<input type=\"text\" id=\"ntp\" name=\"ntp\" placeholder=\"";
+  html += ntpServerName;
+  html += "\" value=\"";
+  html += json["ntp"].as<const char*>();
+  html += "\">";
+  html += "<p>Leave empty to use ";
+  html += ntpServerName;
+  html += "</p>";
+  html += "</div>";
 
-  html += "<h2>Time settings</h2>";
+  html += "<h2>Timezone settings</h2>";
   html += "<p>Set your timezone and optionally also daylight saving.</p>";
+
 
   html += "<div class=\"row\"><label for=\"std_offset\">UTC offset (in minutes, -660 = -11h, 660 = +11h):</label>";
   html += "<input type=\"number\" id=\"std_offset\" name=\"std_offset\" min=\"-660\" max=\"660\" value=\"";
@@ -547,7 +582,7 @@ void handleRoot() {
   html += FW_NAME;
   html += " ";
   html += FW_VERSION;
-  html += ", check out <a href=\"https://github.com/mcer12/Flora-ESP8266\" target=\"_blank\"><strong>NICK</strong> on GitHub</a></p> </div>";
+  html += ", check out <a href=\"https://github.com/mcer12/Flora-ESP8266\" target=\"_blank\"><strong>FLORA</strong> on GitHub</a></p> </div>";
   html += "</div>";
   html += "<script>function toggleVisibility(eventsender, idOfObjectToToggle){var myNewState = \"none\";if (eventsender.checked === true){myNewState = \"block\";}document.getElementById(idOfObjectToToggle).style.display = myNewState;}toggleVisibility(document.getElementById('dst_enable'), 'dst_wrapper');</script>";
   html += "</body> </html>";
