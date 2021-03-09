@@ -26,3 +26,8 @@ I will try to add some notes to the essembly but it's actually fairly straight f
 **Images:**
 
 ![alt text](https://raw.githubusercontent.com/mcer12/Flora-ESP8266/main/Images/screenshot.png)
+
+
+**License:**  
+GPL-3.0 License  
+LGPL-2.1 License (modified SPI library)
