@@ -13,20 +13,22 @@ https://www.thingiverse.com/thing:4744087
 I will try to add some notes to the essembly but it's actually fairly straight forward. Can be completely sourced from LCSC and partially assembled using JLCPCB assembly service.
 
 **Some things to note:**
-1) Colons made out of WS2812 addressable leds
-2) CH340 with NodeMCU style auto-reset built-in for easy programming / debugging
-3) Each segment driven directly, not multiplexed
-4) NTP based, no battery / RTC. Connect to wifi and you're done.
-5) 150hz refresh rate using HW interrupt, not affected by wifi activity.
-6) 3 levels of brightness, each with 8 more levels for dimming / crossfade.
-7) No buttons design. Simple configuration portal is used for settings.
-8) Daylight saving (summer time) support built in and super simple to set up.
-9) MicroUSB connector, Below 500mA power consumption on 5V on full brightness.
+1) This design is made with low-profile and small footprint in mind using only 3mm high components. Feel free to adopt it for your project!
+2) Colons made out of WS2812 addressable leds
+3) CH340 with NodeMCU style auto-reset built-in for easy programming / debugging
+4) Each segment driven directly, not multiplexed
+5) NTP based, no battery / RTC. Connect to wifi and you're done.
+6) 150hz refresh rate using HW ISR timer, zero flicker and not affected by wifi activity.
+7) 3 levels of brightness, each with 8 more levels for dimming / crossfade. 32 pwm steps in total for each segment!
+8) No buttons design. Simple configuration portal is used for settings.
+9) Daylight saving (summer time) support built in and super simple to set up.
+10) MicroUSB connector, Below 500mA power consumption on 5V on full brightness.
 
 **Images:**
 
-![alt text](https://raw.githubusercontent.com/mcer12/Flora-ESP8266/main/Images/screenshot.png)
+![alt text](https://raw.githubusercontent.com/mcer12/Flora-ESP8266/main/Images/clock.jpg)  
 
+![alt text](https://raw.githubusercontent.com/mcer12/Flora-ESP8266/main/Images/screenshot.png)  
 
 **License:**  
 GPL-3.0 License  
