@@ -51,20 +51,25 @@ void startConfigPortal() {
     }
 
     if (millis() > lastTest + 100) {
-      int splitTime[6] = {
+      int splitTime[] = {
+        #ifndef CLOCK_VERSION_IV22
         (hour(remainingSeconds) / 10) % 10,
         hour(remainingSeconds) % 10,
+        #endif
         (minute(remainingSeconds) / 10) % 10,
         minute(remainingSeconds) % 10,
         (second(remainingSeconds) / 10) % 10,
         second(remainingSeconds) % 10,
       };
+
       for (int i = 0; i < registersCount; i++) {
+      /*
         if (i < 4 && splitTime[i] == 0 && registersCount > 4) {
           blankDigit(i);
           continue;
         }
-        setDigit(registersCount - 1 - i, splitTime[5 - i]);
+        */
+        setDigit(i, splitTime[i]);
       }
       lastTest = millis();
     }

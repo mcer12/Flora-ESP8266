@@ -4,19 +4,15 @@ void ICACHE_RAM_ATTR shiftSetValue(uint8_t pin, bool value) {
   (value) ? bitSet(bytes[pin / 8], pin % 8) : bitClear(bytes[pin / 8], pin % 8);
 }
 
-/*
-  void ICACHE_RAM_ATTR setValue(uint8_t pin, bool value) {
-  (value) ? bitSet(bytes[pin / 8], pin % 8) : bitClear(bytes[pin / 8], pin % 8);
-  }
-*/
 
-void ICACHE_RAM_ATTR shiftSetAll(bool value) {
+/*
+  void ICACHE_RAM_ATTR shiftSetAll(bool value) {
   for (int i = 0; i < registersCount * 8; i++) {
     //(value) ? bitSet(bytes[pinsToRegisterMap[i]], pinsToBitsMap[i]) : bitClear(bytes[pinsToRegisterMap[i]], pinsToBitsMap[i]);
     (value) ? bitSet(bytes[i / 8], i % 8) : bitClear(bytes[i / 8], i % 8);
   }
-}
-
+  }
+*/
 void ICACHE_RAM_ATTR shiftWriteBytes(volatile byte *data) {
 
   for (int i; i < registersCount; i++) {
@@ -35,8 +31,10 @@ void ICACHE_RAM_ATTR shiftWriteBytes(volatile byte *data) {
 
 void ICACHE_RAM_ATTR TimerHandler()
 {
+
+  // Normal PWM
   for (int i = 0; i < registersCount; i++) {
-    for (int ii = 0; ii < 8; ii++) {
+    for (int ii = 0; ii < segmentCount; ii++) {
       if (dutyState < segmentBrightness[i][ii]) {
         shiftSetValue(digitPins[i][ii], true);
       } else {
@@ -45,9 +43,50 @@ void ICACHE_RAM_ATTR TimerHandler()
     }
   }
 
+
+
+  /*
+    // Phase shifted PWM
+    for (int i = 0; i < registersCount; i++) {
+      for (int ii = 0; ii < 8; ii++) {
+
+        if (
+          (dutyState >= (i * pwmShift) && dutyState < segmentBrightness[i][ii] + (i * pwmShift))//  ||
+          //(dutyState + (i * pwmShift) > pwmResolution && dutyState < segmentBrightness[i][ii] - (dutyState + (i * pwmShift) - pwmResolution))
+          //(dutyState < (i * pwmShift) && dutyState + (i * pwmShift) >= pwmResolution &&   dutyState + (i * pwmShift) - pwmResolution < segmentBrightness[i][ii])
+          //(dutyState < (i * pwmShift) && dutyState + (i * pwmShift) >= pwmResolution && dutyState + (i * pwmShift) - pwmResolution < segmentBrightness[i][ii])
+          //(dutyState + (i * pwmShift) > segmentBrightness[i][ii])
+          //(segmentBrightness[i][ii] - dutyState - (i * pwmShift) > 0)
+          //(segmentBrightness[i][ii] - (dutyState - (i * pwmShift)) < segmentBrightness[i][ii] && dutyState - (i * pwmShift) < 0)
+        ) {
+          shiftSetValue(digitPins[i][ii], true);
+        } else {
+          shiftSetValue(digitPins[i][ii], false);
+        }
+      }
+    }
+  */
+
+  /*
+    // Only send data if there's a change
+    for (int i = 0; i < registersCount; i++) {
+    if (bytes[i] != prevBytes[i]) {
+      shiftWriteBytes(bytes); // Digits are reversed (first shift register = last digit etc.)
+      //Serial.print(prevBytes[i]);
+      //Serial.print(":");
+      //Serial.println(bytes[i]);
+      break;
+    }
+    }
+
+    for (int i = 0; i < registersCount; i++) {
+    prevBytes[i] = bytes[i];
+    }
+  */
+
   shiftWriteBytes(bytes); // Digits are reversed (first shift register = last digit etc.)
 
-  if (dutyState >= pwmResolution) dutyState = 0;
+  if (dutyState > pwmResolution) dutyState = 0;
   else dutyState++;
 }
 
@@ -59,6 +98,7 @@ void initScreen() {
   digitalWrite(LATCH, LOW);
 
   bri = json["bri"].as<int>();
+  //bri = 0;
   crossFadeTime = json["fade"].as<int>();
 
   SPI.begin();
@@ -105,7 +145,7 @@ void disableScreen() {
 */
 void handleFade() {
   for (int i = 0; i < registersCount; i++) {
-    for (int ii = 0; ii < 8; ii++) {
+    for (int ii = 0; ii < segmentCount; ii++) {
       if (crossFadeTime > 0) {
         if (targetBrightness[i][ii] > segmentBrightness[i][ii]) {
           segmentBrightness[i][ii] += bri_vals[bri] / dimmingSteps;
@@ -144,15 +184,17 @@ void blankAllDigits() {
 }
 
 void setDot(uint8_t digit, bool enable) {
+#ifndef CLOCK_VERSION_IV12
   if (enable) {
     targetBrightness[digit][7] = bri_vals[bri];
   } else {
     targetBrightness[digit][7] = 0;
   }
+#endif
 }
 
-void draw(uint8_t digit, uint8_t value[8]) {
-  for (int i = 0; i < 8; i++) {
+void draw(uint8_t digit, uint8_t value[segmentCount]) {
+  for (int i = 0; i < segmentCount; i++) {
     if (value[i] == 1) {
       targetBrightness[digit][i] = bri_vals[bri];
     } else {

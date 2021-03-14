@@ -24,8 +24,8 @@
 
 // Pick a clock version below!
 //#define CLOCK_VERSION_IV6
-//#define CLOCK_VERSION_IV12
-#define CLOCK_VERSION_IV22
+#define CLOCK_VERSION_IV12
+//#define CLOCK_VERSION_IV22
 
 #define AP_NAME "FLORA_"
 #define FW_NAME "FLORA"
@@ -86,16 +86,14 @@ RgbColor currentColor = RgbColor(0, 0, 0);
 //RgbColor colonColorDefault = RgbColor(90, 27, 7);
 //RgbColor colonColorDefault = RgbColor(38, 12, 2);
 
-#if defined(CLOCK_VERSION_IV6) || defined(CLOCK_VERSION_IV12)
-const uint8_t registersCount = 6; 
-#elif defined(CLOCK_VERSION_IV22)
-const uint8_t registersCount = 4;
-#else
+#if !defined(CLOCK_VERSION_IV6) && !defined(CLOCK_VERSION_IV12) && !defined(CLOCK_VERSION_IV22)
 #error "You have to pick a clock version! Line 25"
 #endif
 
 #if defined(CLOCK_VERSION_IV6)
-const uint8_t digitPins[registersCount][8] = {
+const uint8_t registersCount = 6;
+const uint8_t segmentCount = 8; 
+const uint8_t digitPins[registersCount][segmentCount] = {
   {40, 41, 42, 43, 44, 45, 46, 47}, // BR | B | BL | TL | M | T | TR | DOT
   {32, 33, 34, 35, 36, 37, 38, 39}, // BR | B | BL | TL | M | T | TR | DOT
   {27, 25, 26, 28, 29, 30, 31, 24}, // BR | B | BL | TL | M | T | TR | DOT
@@ -104,23 +102,25 @@ const uint8_t digitPins[registersCount][8] = {
   {0, 1, 2, 3, 4, 5, 6, 7}, // BR | B | BL | TL | M | T | TR | DOT
 };
 #elif defined(CLOCK_VERSION_IV12)
-const uint8_t digitPins[registersCount][8] = {
-  {40, 41, 42, 43, 44, 45, 46, 47}, // BR | B | BL | TL | M | T | TR | DOT
-  {32, 33, 34, 35, 36, 37, 38, 39}, // BR | B | BL | TL | M | T | TR | DOT
-  {27, 25, 26, 28, 29, 30, 31, 24}, // BR | B | BL | TL | M | T | TR | DOT
-  {16, 17, 18, 19, 20, 21, 22, 23}, // BR | B | BL | TL | M | T | TR | DOT
-  {8, 9, 10, 11, 12, 13, 14, 15}, // BR | B | BL | TL | M | T | TR | DOT
-  {0, 1, 2, 3, 4, 5, 6, 7}, // BR | B | BL | TL | M | T | TR | DOT
+const uint8_t registersCount = 6;
+const uint8_t segmentCount = 7; // IV12 doesn't have dot
+const uint8_t digitPins[registersCount][segmentCount] = {
+  {46, 47, 41, 40, 42, 44, 45}, // BR | B | BL | TL | M | T | TR | DOT
+  {39, 32, 34, 33, 35, 37, 38}, // BR | B | BL | TL | M | T | TR | DOT 
+  {31, 24, 26, 25, 27, 29, 30}, // BR | B | BL | TL | M | T | TR | DOT 
+  {23, 16, 18, 17, 19, 21, 22}, // BR | B | BL | TL | M | T | TR | DOT 
+  {15, 8, 10, 9, 11, 13, 14}, // BR | B | BL | TL | M | T | TR | DOT 
+  {1, 0, 4, 3, 5, 7, 2}, // BR | B | BL | TL | M | T | TR | DOT 
 };
 #elif defined(CLOCK_VERSION_IV22)
-const uint8_t digitPins[registersCount][8] = {
+const uint8_t registersCount = 4;
+const uint8_t segmentCount = 8;
+const uint8_t digitPins[registersCount][segmentCount] = {
   {26, 24, 31, 30, 27, 29, 28, 25}, // BR | B | BL | TL | M | T | TR | DOT
   {20, 16, 23, 22, 19, 17, 18, 21}, // BR | B | BL | TL | M | T | TR | DOT
   {14, 9, 10, 8, 13, 11, 12, 15}, // BR | B | BL | TL | M | T | TR | DOT
   {2, 0, 7, 6, 3, 5, 4, 1}, // BR | B | BL | TL | M | T | TR | DOT
 };
-#else
-#error "You have to pick a clock version! Line 25"
 #endif
 
 uint8_t letter_p[8] = {0, 0, 1, 1, 1, 1, 1, 0};
@@ -142,6 +142,7 @@ volatile uint8_t segmentBrightness[registersCount][8];
 volatile uint8_t targetBrightness[registersCount][8];
 
 // 32 steps of brightness * 200uS => 6.4ms for full refresh => 160Hz... pretty good!
+int pwmShift = 4;
 const uint8_t pwmResolution = 32; // should be in the multiples of dimmingSteps to enable smooth crossfade
 const uint8_t dimmingSteps = 8;
 const uint8_t bri_vals[3] = { // These need to be multiples of 8 to enable crossfade! HIGH must be less or equal as pwmResolution.
@@ -155,9 +156,10 @@ uint8_t deviceMode = NORMAL_MODE;
 bool timeUpdateFirst = true;
 volatile bool toggleSeconds;
 byte mac[6];
-volatile uint8_t dutyState = 0;
+volatile int dutyState = 0;
 volatile uint8_t digitsCache[] = {0, 0, 0, 0};
 volatile byte bytes[registersCount];
+volatile byte prevBytes[registersCount];
 uint8_t bri = 0, crossFadeTime = 0;
 uint8_t timeUpdateStatus = 0; // 0 = no update, 1 = update success, 2 = update fail,
 uint8_t failedAttempts = 0;
@@ -216,9 +218,7 @@ void setup() {
     }
 
     // serializeJson(json, Serial);
-    noInterrupts();
     strip.ClearTo(colorWifiConnecting);
-    interrupts();
     strip_show();
 
     WiFi.begin(ssid, pass);
@@ -336,5 +336,5 @@ void loop() {
   server.handleClient();
   //MDNS.update();
   delay(10); // Keeps the ESP cold!
-  
+
 }
