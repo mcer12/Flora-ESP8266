@@ -35,7 +35,7 @@ void ICACHE_RAM_ATTR TimerHandler()
   // Normal PWM
   for (int i = 0; i < registersCount; i++) {
     for (int ii = 0; ii < segmentCount; ii++) {
-      if (dutyState < segmentBrightness[i][ii]) {
+      if (shiftedDutyState[i] < segmentBrightness[i][ii]) {
         shiftSetValue(digitPins[i][ii], true);
       } else {
         shiftSetValue(digitPins[i][ii], false);
@@ -43,51 +43,14 @@ void ICACHE_RAM_ATTR TimerHandler()
     }
   }
 
-
-
-  /*
-    // Phase shifted PWM
-    for (int i = 0; i < registersCount; i++) {
-      for (int ii = 0; ii < 8; ii++) {
-
-        if (
-          (dutyState >= (i * pwmShift) && dutyState < segmentBrightness[i][ii] + (i * pwmShift))//  ||
-          //(dutyState + (i * pwmShift) > pwmResolution && dutyState < segmentBrightness[i][ii] - (dutyState + (i * pwmShift) - pwmResolution))
-          //(dutyState < (i * pwmShift) && dutyState + (i * pwmShift) >= pwmResolution &&   dutyState + (i * pwmShift) - pwmResolution < segmentBrightness[i][ii])
-          //(dutyState < (i * pwmShift) && dutyState + (i * pwmShift) >= pwmResolution && dutyState + (i * pwmShift) - pwmResolution < segmentBrightness[i][ii])
-          //(dutyState + (i * pwmShift) > segmentBrightness[i][ii])
-          //(segmentBrightness[i][ii] - dutyState - (i * pwmShift) > 0)
-          //(segmentBrightness[i][ii] - (dutyState - (i * pwmShift)) < segmentBrightness[i][ii] && dutyState - (i * pwmShift) < 0)
-        ) {
-          shiftSetValue(digitPins[i][ii], true);
-        } else {
-          shiftSetValue(digitPins[i][ii], false);
-        }
-      }
-    }
-  */
-
-  /*
-    // Only send data if there's a change
-    for (int i = 0; i < registersCount; i++) {
-    if (bytes[i] != prevBytes[i]) {
-      shiftWriteBytes(bytes); // Digits are reversed (first shift register = last digit etc.)
-      //Serial.print(prevBytes[i]);
-      //Serial.print(":");
-      //Serial.println(bytes[i]);
-      break;
-    }
-    }
-
-    for (int i = 0; i < registersCount; i++) {
-    prevBytes[i] = bytes[i];
-    }
-  */
-
   shiftWriteBytes(bytes); // Digits are reversed (first shift register = last digit etc.)
 
-  if (dutyState > pwmResolution) dutyState = 0;
-  else dutyState++;
+  for (int i = 0; i < registersCount; i++) {
+    shiftedDutyState[i]++;
+    if (shiftedDutyState[i] >= pwmResolution) shiftedDutyState[i] = 0;
+  }
+  //if (dutyState > pwmResolution) dutyState = 0;
+  //else dutyState++;
 }
 
 
@@ -100,6 +63,8 @@ void initScreen() {
   bri = json["bri"].as<int>();
   //bri = 0;
   crossFadeTime = json["fade"].as<int>();
+
+  setupPhaseShift();
 
   SPI.begin();
   SPI.setDataMode(SPI_MODE0);
@@ -284,6 +249,13 @@ void showIP(int delay_ms) {
   strip_show();
 }
 
+void setupPhaseShift() {
+  uint8_t shiftSteps = ceil((pwmResolution - bri) / (registersCount - 1)); // Random calculation for best pwm shift
+  for (int i = 0; i < registersCount; i++) {
+    shiftedDutyState[i] = i * shiftSteps;
+  }
+}
+
 void toggleNightMode() {
   if (json["nmode"].as<int>() == 0) return;
   if (hour() >= 22 || hour() <= 6) {
@@ -291,4 +263,5 @@ void toggleNightMode() {
     return;
   }
   bri = json["bri"].as<int>();
+  setupPhaseShift();
 }

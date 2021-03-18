@@ -24,8 +24,8 @@
 
 // Pick a clock version below!
 //#define CLOCK_VERSION_IV6
-#define CLOCK_VERSION_IV12
-//#define CLOCK_VERSION_IV22
+//#define CLOCK_VERSION_IV12
+#define CLOCK_VERSION_IV22
 
 #define AP_NAME "FLORA_"
 #define FW_NAME "FLORA"
@@ -142,7 +142,7 @@ volatile uint8_t segmentBrightness[registersCount][8];
 volatile uint8_t targetBrightness[registersCount][8];
 
 // 32 steps of brightness * 200uS => 6.4ms for full refresh => 160Hz... pretty good!
-int pwmShift = 4;
+volatile uint8_t shiftedDutyState[registersCount];
 const uint8_t pwmResolution = 32; // should be in the multiples of dimmingSteps to enable smooth crossfade
 const uint8_t dimmingSteps = 8;
 const uint8_t bri_vals[3] = { // These need to be multiples of 8 to enable crossfade! HIGH must be less or equal as pwmResolution.
