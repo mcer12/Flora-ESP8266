@@ -20,8 +20,10 @@ void startLocalConfigPortal() {
 void startConfigPortal() {
   configStartMillis = millis(); // start counter
 
-  strip.ClearTo(colorConfigMode);
-  strip_show();
+  if (server.hasArg("is_form")) {
+    strip.ClearTo(colorConfigMode);
+    strip_show();
+  }
 
   String ap_name = AP_NAME + macLastThreeSegments(mac);
   IPAddress ap_ip(10, 10, 10, 1);
@@ -83,14 +85,10 @@ void startConfigPortal() {
 void handleRoot() {
   if (server.args()) {
 
-    // Turn off the nixies
-    /*
-      ticker.detach();
-      digitalWrite(5, 0);
-      digitalWrite(4, 0);
-    */
-    strip.ClearTo(colorConfigSave);
-    strip_show();
+    if (server.hasArg("is_form")) {
+      strip.ClearTo(colorConfigSave);
+      strip_show();
+    }
 
     if (server.hasArg("ssid")) {
       json["ssid"] = server.arg("ssid");
@@ -120,9 +118,13 @@ void handleRoot() {
     }
     if (server.hasArg("bri")) {
       json["bri"] = server.arg("bri");
+      bri = json["bri"].as<int>();
+      setupPhaseShift();
     }
     if (server.hasArg("fade")) {
       json["fade"] = server.arg("fade");
+      crossFadeTime = json["fade"].as<int>();
+      //setupCrossFade();
     }
     if (server.hasArg("colon")) {
       json["colon"] = server.arg("colon");
@@ -577,11 +579,8 @@ void handleRoot() {
 
   html += "</div>"; // WRAPPER END
 
-
-
-
-
-
+  // This is just to check if it's a remote GET request or full update.
+  html += "<input type=\"hidden\" name=\"is_form\" value=\"1\">";
 
   html += "<div class=\"row\"><button type=\"submit\">Save and reboot</button></div></form></div>";
   html += "<div class=\"github\"><p>";
@@ -592,14 +591,16 @@ void handleRoot() {
   html += "</div>";
   html += "<script>function toggleVisibility(eventsender, idOfObjectToToggle){var myNewState = \"none\";if (eventsender.checked === true){myNewState = \"block\";}document.getElementById(idOfObjectToToggle).style.display = myNewState;}toggleVisibility(document.getElementById('dst_enable'), 'dst_wrapper');</script>";
   html += "</body> </html>";
-  server.send(200, "text/html", html);
-
+  if (!server.args() || (server.args() && server.hasArg("is_form"))) {
+    server.send(200, "text/html", html);
+  } else {
+    server.send(200, "text/html", "OK");
+  }
   if (server.args()) {
-    // Save data
-    delay(1000);
-    saveConfig();
-
-    ESP.restart();
-    delay(100);
+    if (server.hasArg("is_form")) {
+      delay(1000);
+      ESP.restart();
+      delay(100);
+    }
   }
 }

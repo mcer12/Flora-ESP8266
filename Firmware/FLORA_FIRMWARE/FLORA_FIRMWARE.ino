@@ -23,9 +23,9 @@
 #include <Timezone.h>
 
 // Pick a clock version below!
-//#define CLOCK_VERSION_IV6
+#define CLOCK_VERSION_IV6
 //#define CLOCK_VERSION_IV12
-#define CLOCK_VERSION_IV22
+//#define CLOCK_VERSION_IV22
 
 #define AP_NAME "FLORA_"
 #define FW_NAME "FLORA"
@@ -160,7 +160,8 @@ volatile int dutyState = 0;
 volatile uint8_t digitsCache[] = {0, 0, 0, 0};
 volatile byte bytes[registersCount];
 volatile byte prevBytes[registersCount];
-uint8_t bri = 0, crossFadeTime = 0;
+volatile uint8_t bri = 0;
+volatile uint8_t crossFadeTime = 0;
 uint8_t timeUpdateStatus = 0; // 0 = no update, 1 = update success, 2 = update fail,
 uint8_t failedAttempts = 0;
 RgbColor colonColor;

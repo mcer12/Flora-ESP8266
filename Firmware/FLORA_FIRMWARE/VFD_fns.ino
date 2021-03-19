@@ -61,10 +61,9 @@ void initScreen() {
   digitalWrite(LATCH, LOW);
 
   bri = json["bri"].as<int>();
-  //bri = 0;
   crossFadeTime = json["fade"].as<int>();
-
   setupPhaseShift();
+  setupCrossFade();
 
   SPI.begin();
   SPI.setDataMode(SPI_MODE0);
@@ -73,12 +72,6 @@ void initScreen() {
 
   ITimer.attachInterruptInterval(TIMER_INTERVAL_uS, TimerHandler);
   // 30ms slow 240ms, 20 => medium 160ms, 15 => quick 120ms
-
-  if (crossFadeTime > 0) {
-    fade_animation_ticker.attach_ms(crossFadeTime, handleFade); // handle dimming animation
-  } else {
-    fade_animation_ticker.attach_ms(20, handleFade); // handle dimming animation
-  }
 
   blankAllDigits();
 }
@@ -108,6 +101,14 @@ void disableScreen() {
 
   }
 */
+
+void setupCrossFade() {
+  if (crossFadeTime > 0) {
+    fade_animation_ticker.attach_ms(crossFadeTime, handleFade); // handle dimming animation
+  } else {
+    fade_animation_ticker.attach_ms(20, handleFade); // handle dimming animation
+  }
+}
 void handleFade() {
   for (int i = 0; i < registersCount; i++) {
     for (int ii = 0; ii < segmentCount; ii++) {
@@ -250,18 +251,20 @@ void showIP(int delay_ms) {
 }
 
 void setupPhaseShift() {
-  uint8_t shiftSteps = ceil((pwmResolution - bri) / (registersCount - 1)); // Random calculation for best pwm shift
+  disableScreen();
+  uint8_t shiftSteps = ceil((pwmResolution - bri_vals[bri]) / (registersCount - 1)); // Random calculation for best pwm shift
   for (int i = 0; i < registersCount; i++) {
     shiftedDutyState[i] = i * shiftSteps;
   }
+  enableScreen();
 }
 
 void toggleNightMode() {
   if (json["nmode"].as<int>() == 0) return;
   if (hour() >= 22 || hour() <= 6) {
     bri = 0;
-    return;
+  } else {
+    bri = json["bri"].as<int>();
   }
-  bri = json["bri"].as<int>();
   setupPhaseShift();
 }
