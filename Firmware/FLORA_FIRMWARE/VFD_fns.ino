@@ -252,7 +252,8 @@ void showIP(int delay_ms) {
 
 void setupPhaseShift() {
   disableScreen();
-  uint8_t shiftSteps = ceil((pwmResolution - bri_vals[bri]) / (registersCount - 1)); // Random calculation for best pwm shift
+  uint8_t shiftSteps = floor(pwmResolution / registersCount); // Random calculation for best pwm shift
+  if(shiftSteps)
   for (int i = 0; i < registersCount; i++) {
     shiftedDutyState[i] = i * shiftSteps;
   }
