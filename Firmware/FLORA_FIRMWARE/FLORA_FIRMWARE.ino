@@ -229,7 +229,7 @@ void setup() {
 
     for (int i = 0; i < 1000; i++) {
       if (WiFi.status() != WL_CONNECTED) {
-        if (i > 500) {
+        if (i > 200) { // 20s timeout
           deviceMode = CONFIG_MODE;
           //colonTicker.detach();
           strip.ClearTo(colorWifiFail);

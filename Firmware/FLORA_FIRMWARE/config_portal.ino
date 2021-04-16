@@ -20,10 +20,8 @@ void startLocalConfigPortal() {
 void startConfigPortal() {
   configStartMillis = millis(); // start counter
 
-  if (server.hasArg("is_form")) {
-    strip.ClearTo(colorConfigMode);
-    strip_show();
-  }
+  strip.ClearTo(colorConfigMode);
+  strip_show();
 
   String ap_name = AP_NAME + macLastThreeSegments(mac);
   IPAddress ap_ip(10, 10, 10, 1);
