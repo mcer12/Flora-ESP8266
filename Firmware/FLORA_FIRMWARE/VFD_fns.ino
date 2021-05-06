@@ -114,10 +114,10 @@ void handleFade() {
     for (int ii = 0; ii < segmentCount; ii++) {
       if (crossFadeTime > 0) {
         if (targetBrightness[i][ii] > segmentBrightness[i][ii]) {
-          segmentBrightness[i][ii] += bri_vals[bri] / dimmingSteps;
-          if (segmentBrightness[i][ii] > bri_vals[bri]) segmentBrightness[i][ii] = bri_vals[bri];
+          segmentBrightness[i][ii] += bri_vals_separate[bri][i] / dimmingSteps;
+          if (segmentBrightness[i][ii] > bri_vals_separate[bri][i]) segmentBrightness[i][ii] = bri_vals_separate[bri][i];
         } else if (targetBrightness[i][ii] < segmentBrightness[i][ii]) {
-          segmentBrightness[i][ii] -= bri_vals[bri] / dimmingSteps;
+          segmentBrightness[i][ii] -= bri_vals_separate[bri][i] / dimmingSteps;
           if (segmentBrightness[i][ii] < 0) segmentBrightness[i][ii] = 0;
         }
       } else {
@@ -152,7 +152,7 @@ void blankAllDigits() {
 void setDot(uint8_t digit, bool enable) {
 #ifndef CLOCK_VERSION_IV12
   if (enable) {
-    targetBrightness[digit][7] = bri_vals[bri];
+    targetBrightness[digit][7] = bri_vals_separate[bri][digit];
   } else {
     targetBrightness[digit][7] = 0;
   }
@@ -162,7 +162,7 @@ void setDot(uint8_t digit, bool enable) {
 void draw(uint8_t digit, uint8_t value[segmentCount]) {
   for (int i = 0; i < segmentCount; i++) {
     if (value[i] == 1) {
-      targetBrightness[digit][i] = bri_vals[bri];
+      targetBrightness[digit][i] = bri_vals_separate[bri][digit];
     } else {
       targetBrightness[digit][i] = 0;
     }

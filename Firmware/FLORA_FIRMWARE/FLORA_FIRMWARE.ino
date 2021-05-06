@@ -23,9 +23,13 @@
 #include <Timezone.h>
 
 // Pick a clock version below!
-#define CLOCK_VERSION_IV6
+//#define CLOCK_VERSION_IV6
 //#define CLOCK_VERSION_IV12
 //#define CLOCK_VERSION_IV22
+
+#if !defined(CLOCK_VERSION_IV6) && !defined(CLOCK_VERSION_IV12) && !defined(CLOCK_VERSION_IV22)
+#error "You have to pick a clock version! Line 25"
+#endif
 
 #define AP_NAME "FLORA_"
 #define FW_NAME "FLORA"
@@ -69,11 +73,19 @@ RgbColor green[] = {
   RgbColor(0, 60, 0), // HIGH
 };
 
+#if defined(CLOCK_VERSION_IV6)
+RgbColor colonColorDefault[] = {
+  RgbColor(9, 28, 10), // LOW
+  RgbColor(16, 55, 20), // MEDIUM
+  RgbColor(25, 70, 45), // HIGH
+};
+#else
 RgbColor colonColorDefault[] = {
   RgbColor(9, 28, 10), // LOW
   RgbColor(16, 55, 20), // MEDIUM
   RgbColor(20, 85, 30), // HIGH
 };
+#endif
 
 /*
   RgbColor colonColorDefault[] = {
@@ -85,10 +97,6 @@ RgbColor colonColorDefault[] = {
 RgbColor currentColor = RgbColor(0, 0, 0);
 //RgbColor colonColorDefault = RgbColor(90, 27, 7);
 //RgbColor colonColorDefault = RgbColor(38, 12, 2);
-
-#if !defined(CLOCK_VERSION_IV6) && !defined(CLOCK_VERSION_IV12) && !defined(CLOCK_VERSION_IV22)
-#error "You have to pick a clock version! Line 25"
-#endif
 
 #if defined(CLOCK_VERSION_IV6)
 const uint8_t registersCount = 6;
@@ -142,14 +150,27 @@ volatile uint8_t segmentBrightness[registersCount][8];
 volatile uint8_t targetBrightness[registersCount][8];
 
 // 32 steps of brightness * 200uS => 6.4ms for full refresh => 160Hz... pretty good!
+// 48 steps => 100hz
 volatile uint8_t shiftedDutyState[registersCount];
-const uint8_t pwmResolution = 32; // should be in the multiples of dimmingSteps to enable smooth crossfade
+const uint8_t pwmResolution = 48; // should be in the multiples of dimmingSteps to enable smooth crossfade
 const uint8_t dimmingSteps = 8;
 const uint8_t bri_vals[3] = { // These need to be multiples of 8 to enable crossfade! HIGH must be less or equal as pwmResolution.
   8, // LOW
-  16, // MEDIUM
-  32, // HIGH
+  24, // MEDIUM
+  48, // HIGH
 };
+
+// MAX BRIGHTNESS PER DIGIT
+// These need to be multiples of 8 to enable crossfade! Must be less or equal as pwmResolution.
+// Set maximum brightness for reach digit separately. This can be used to normalize brightness between new and burned out tubes.
+// Last two values are ignored in 4-digit clock
+const uint8_t bri_vals_separate[3][registersCount] = { 
+  {8,8,8,8,8,8}, // Low brightness
+  {24,24,24,24,24,24}, // Medium brightness
+  {48,48,48,48,48,48}, // High brightness
+};
+
+
 // Better left alone global vars
 unsigned long configStartMillis, prevDisplayMillis;
 uint8_t deviceMode = NORMAL_MODE;
