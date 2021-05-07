@@ -8,7 +8,8 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
 #include <WiFiClient.h>
-//#include <ESP8266mDNS.h>
+#include <DNSServer.h>
+#include <ESP8266mDNS.h>
 #include <WiFiUdp.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266HTTPUpdateServer.h>
@@ -50,6 +51,7 @@
 #define TIMER_INTERVAL_uS 200 // 200 = safe value for 6 digits. You can go down to 150 for 4-digit one. Going too low will cause crashes.
 
 // User global vars
+const char* dns_name = "flora";
 const char* update_path = "/update";
 const char* update_username = "flora";
 const char* update_password = "flora";
@@ -100,7 +102,7 @@ RgbColor currentColor = RgbColor(0, 0, 0);
 
 #if defined(CLOCK_VERSION_IV6)
 const uint8_t registersCount = 6;
-const uint8_t segmentCount = 8; 
+const uint8_t segmentCount = 8;
 const uint8_t digitPins[registersCount][segmentCount] = {
   {40, 41, 42, 43, 44, 45, 46, 47}, // BR | B | BL | TL | M | T | TR | DOT
   {32, 33, 34, 35, 36, 37, 38, 39}, // BR | B | BL | TL | M | T | TR | DOT
@@ -114,11 +116,11 @@ const uint8_t registersCount = 6;
 const uint8_t segmentCount = 7; // IV12 doesn't have dot
 const uint8_t digitPins[registersCount][segmentCount] = {
   {46, 47, 41, 40, 42, 44, 45}, // BR | B | BL | TL | M | T | TR | DOT
-  {39, 32, 34, 33, 35, 37, 38}, // BR | B | BL | TL | M | T | TR | DOT 
-  {31, 24, 26, 25, 27, 29, 30}, // BR | B | BL | TL | M | T | TR | DOT 
-  {23, 16, 18, 17, 19, 21, 22}, // BR | B | BL | TL | M | T | TR | DOT 
-  {15, 8, 10, 9, 11, 13, 14}, // BR | B | BL | TL | M | T | TR | DOT 
-  {1, 0, 4, 3, 5, 7, 2}, // BR | B | BL | TL | M | T | TR | DOT 
+  {39, 32, 34, 33, 35, 37, 38}, // BR | B | BL | TL | M | T | TR | DOT
+  {31, 24, 26, 25, 27, 29, 30}, // BR | B | BL | TL | M | T | TR | DOT
+  {23, 16, 18, 17, 19, 21, 22}, // BR | B | BL | TL | M | T | TR | DOT
+  {15, 8, 10, 9, 11, 13, 14}, // BR | B | BL | TL | M | T | TR | DOT
+  {1, 0, 4, 3, 5, 7, 2}, // BR | B | BL | TL | M | T | TR | DOT
 };
 #elif defined(CLOCK_VERSION_IV22)
 const uint8_t registersCount = 4;
@@ -164,10 +166,10 @@ const uint8_t bri_vals[3] = { // These need to be multiples of 8 to enable cross
 // These need to be multiples of 8 to enable crossfade! Must be less or equal as pwmResolution.
 // Set maximum brightness for reach digit separately. This can be used to normalize brightness between new and burned out tubes.
 // Last two values are ignored in 4-digit clock
-const uint8_t bri_vals_separate[3][registersCount] = { 
-  {8,8,8,8,8,8}, // Low brightness
-  {24,24,24,24,24,24}, // Medium brightness
-  {48,48,48,48,48,48}, // High brightness
+const uint8_t bri_vals_separate[3][6] = {
+  {8, 8, 8, 8, 8, 8}, // Low brightness
+  {24, 24, 24, 24, 24, 24}, // Medium brightness
+  {48, 48, 48, 48, 48, 48}, // High brightness
 };
 
 
@@ -199,6 +201,7 @@ Ticker fade_animation_ticker;
 Ticker onceTicker;
 Ticker colonTicker;
 ESP8266Timer ITimer;
+DNSServer dnsServer;
 ESP8266WebServer server(80);
 WiFiUDP Udp;
 ESP8266HTTPUpdateServer httpUpdateServer;
@@ -243,6 +246,7 @@ void setup() {
     strip.ClearTo(colorWifiConnecting);
     strip_show();
 
+    WiFi.hostname(AP_NAME + macLastThreeSegments(mac));
     WiFi.begin(ssid, pass);
 
     //startBlinking(200, colorWifiConnecting);
@@ -289,7 +293,7 @@ void setup() {
     startConfigPortal(); // Blocking loop
   } else {
     ndp_setup();
-    startLocalConfigPortal();
+    startServer();
   }
 
   colonColor = colonColorDefault[bri];
@@ -305,6 +309,13 @@ void setup() {
   if (json["rst_ip"].as<unsigned int>() == 1) {
     showIP(5000);
     delay(500);
+  }
+
+  if (!MDNS.begin(dns_name)) {
+    Serial.println("[ERROR] MDNS responder did not setup");
+  } else {
+    Serial.println("[INFO] MDNS setup is successful!");
+    MDNS.addService("http", "tcp", 80);
   }
 
 }
@@ -355,8 +366,8 @@ void loop() {
   animations.UpdateAnimations();
   strip_show();
 
+  MDNS.update();
   server.handleClient();
-  //MDNS.update();
   delay(10); // Keeps the ESP cold!
 
 }
