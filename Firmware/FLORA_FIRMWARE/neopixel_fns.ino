@@ -37,21 +37,56 @@ void handleBlinking() {
   toggleSeconds = !toggleSeconds;
 }
 
+void updateColonColor(RgbColor color) {
+  RgbColor colorHigh = color;
+  RgbColor colorMed = color;
+  RgbColor colorLow = color;
+
+#if defined(CLOCK_VERSION_IV6) || defined(CLOCK_VERSION_IV12)
+  if (json["colon"].as<int>() == 4) {
+    colorMed = RgbColor::LinearBlend(color, RgbColor(0, 0, 0), 0.5);
+    colorLow = RgbColor::LinearBlend(color, RgbColor(0, 0, 0), 0.7);
+  }
+#endif
+
+  // Gamma correction => linearize brightness
+  colorHigh = colorGamma.Correct(colorHigh);
+  colorMed = colorGamma.Correct(colorMed);
+  colorLow = colorGamma.Correct(colorLow);
+
+
+  strip.SetPixelColor(2, colorHigh);
+  strip.SetPixelColor(3, colorHigh);
+  strip.SetPixelColor(1, colorMed);
+  strip.SetPixelColor(4, colorMed);
+  strip.SetPixelColor(0, colorLow);
+  strip.SetPixelColor(5, colorLow);
+
+  strip.SetPixelColor(8, colorHigh);
+  strip.SetPixelColor(9, colorHigh);
+  strip.SetPixelColor(7, colorMed);
+  strip.SetPixelColor(10, colorMed);
+  strip.SetPixelColor(6, colorLow);
+  strip.SetPixelColor(11, colorLow);
+}
+
 void handleColon() {
-  if (json["colon"].as<int>() == 1) { // 0 = off, 1 = always on, 2 = ON/OFF each second
-    strip.ClearTo(colonColor);
+  // 0 = off, 1 = always on, 2 = ON/OFF each second, 3 = always on with gradient
+  if (json["colon"].as<int>() == 0) {
+    strip.ClearTo(RgbColor(0, 0, 0));
+  } else if (json["colon"].as<int>() == 1 || json["colon"].as<int>() == 3) {
+    updateColonColor(colonColor);
     return;
   } else if (json["colon"].as<int>() == 2) {
     toggleSeconds = !toggleSeconds;
     if (toggleSeconds) {
-      SetupAnimations(colonColor, RgbColor(0, 0, 0));
+      SetupAnimations(colonColor, RgbColor(0, 0, 0), 150);
     }
     else {
-      SetupAnimations(RgbColor(0, 0, 0), colonColor);
+      SetupAnimations(RgbColor(0, 0, 0), colonColor, 150);
     }
     return;
   }
-  strip.ClearTo(RgbColor(0, 0, 0));
 }
 
 struct stripeAnimationState
@@ -63,23 +98,21 @@ stripeAnimationState animationState[PixelCount];
 
 void AnimUpdate(const AnimationParam& param)
 {
-  if (param.state == AnimationState_Completed) {
-
-  }
   currentColor = RgbColor::LinearBlend(
                    animationState[param.index].StartingColor,
                    animationState[param.index].EndingColor,
                    param.progress);
+
   // apply the color to the strip
-  strip.ClearTo(currentColor);
+  updateColonColor(currentColor);
 }
 
-void SetupAnimations(RgbColor StartingColor, RgbColor EndingColor)
+void SetupAnimations(RgbColor StartingColor, RgbColor EndingColor, int duration)
 {
   // fade all pixels providing a tail that is longer the faster
   // the pixel moves.
 
   animationState[0].StartingColor = StartingColor;
   animationState[0].EndingColor = EndingColor;
-  animations.StartAnimation(0, 150, AnimUpdate);
+  animations.StartAnimation(0, duration, AnimUpdate);
 }

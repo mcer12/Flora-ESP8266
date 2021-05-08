@@ -14,17 +14,20 @@ time_t getNtpTime()
   if (server == NULL || server[0] == '\0') {
     server = ntpServerName;
   }
-  Serial.print("NTP: Connecting to server ");
+  Serial.print("[NTP] Connecting to server: ");
   Serial.println(server);
-  WiFi.hostByName(server, ntpServerIP);
-  Serial.print("NTP: Server IP: ");
+  if (WiFi.hostByName(server, ntpServerIP) != 1) {
+    Serial.println("[NTP] Server not found...");
+    return 0;
+  }
+  Serial.print("[NTP] Server IP: ");
   Serial.println(ntpServerIP);
   sendNTPpacket(ntpServerIP);
   uint32_t beginWait = millis();
   while (millis() - beginWait < 1500) {
     int size = Udp.parsePacket();
     if (size >= NTP_PACKET_SIZE) {
-      Serial.println("NTP: Response received");
+      Serial.println("[NTP] Receiving data...");
       Udp.read(packetBuffer, NTP_PACKET_SIZE);  // read packet into the buffer
       unsigned long secsSince1900;
       // convert four bytes starting at location 40 to a long integer
@@ -34,12 +37,10 @@ time_t getNtpTime()
       secsSince1900 |= (unsigned long)packetBuffer[43];
 
       return secsSince1900 - 2208988800UL;
-      //return czLocal.toLocal(secsSince1900 - 2208988800UL + timeZone * SECS_PER_HOUR);
     }
   }
 
-  //Serial.println("No NTP Response :-(");
-
+  Serial.println("[NTP] Server not responding...");
   return 0; // return 0 if unable to get the time
 }
 
@@ -55,24 +56,17 @@ time_t getNtpLocalTime() {
   if (receivedTime == 0) {
     timeUpdateStatus = UPDATE_FAIL;
     failedAttempts += 1;
-    Serial.print("NTP: Sync fail! Attempt: ");
+    Serial.print("[NTP] Sync failed. Attempt: ");
     Serial.println(failedAttempts);
     return 0;
   }
-  Serial.print("NTP: Sync success! Received NTP time: ");
+  Serial.print("[NTP] Sync success! Received NTP timestamp: ");
   Serial.println(receivedTime);
   timeUpdateFirst = false;
   timeUpdateStatus = UPDATE_SUCCESS;
   failedAttempts = 0;
 
-  /*
-    if (json["dst_enable"].as<int>() == 1) {
-    return receivedTime + (json["std_offset"].as<int>() * 60);
-    }
-  */
-
   return TZ.toLocal(receivedTime);
-
 }
 
 // send an NTP request to the time server at the given address

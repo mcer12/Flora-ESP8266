@@ -51,42 +51,49 @@
 #define TIMER_INTERVAL_uS 200 // 200 = safe value for 6 digits. You can go down to 150 for 4-digit one. Going too low will cause crashes.
 
 // User global vars
-const char* dns_name = "flora";
+const char* dns_name = "flora"; // only for AP mode
 const char* update_path = "/update";
 const char* update_username = "flora";
 const char* update_password = "flora";
 const char* ntpServerName = "pool.ntp.org";
 
 const uint8_t PixelCount = 12; // Addressable LED count
-RgbColor colorConfigMode = RgbColor(60, 0, 60);
-RgbColor colorConfigSave = RgbColor(0, 0, 60);
-RgbColor colorWifiConnecting = RgbColor(90, 45, 0);
-RgbColor colorWifiSuccess = RgbColor(0, 60, 0);
-RgbColor colorWifiFail = RgbColor(90, 0, 0);
-RgbColor colorStartupDisplay = RgbColor(0, 70, 50);
+RgbColor colorConfigMode = RgbColor(130, 0, 130);
+RgbColor colorConfigSave = RgbColor(0, 0, 130);
+RgbColor colorWifiConnecting = RgbColor(130, 100, 0);
+RgbColor colorWifiSuccess = RgbColor(0, 130, 0);
+RgbColor colorWifiFail = RgbColor(130, 0, 0);
+RgbColor colorStartupDisplay = RgbColor(0, 130, 130);
 RgbColor red[] = {
-  RgbColor(40, 0, 0), // LOW
-  RgbColor(60, 0, 0), // MEDIUM
-  RgbColor(90, 0, 0), // HIGH
+  RgbColor(70, 0, 0), // LOW
+  RgbColor(100, 0, 0), // MEDIUM
+  RgbColor(130, 0, 0), // HIGH
 };
 RgbColor green[] = {
-  RgbColor(0, 30, 0), // LOW
-  RgbColor(0, 40, 0), // MEDIUM
-  RgbColor(0, 60, 0), // HIGH
+  RgbColor(0, 70, 0), // LOW
+  RgbColor(0, 100, 0), // MEDIUM
+  RgbColor(0, 130, 0), // HIGH
 };
 
 #if defined(CLOCK_VERSION_IV6)
 RgbColor colonColorDefault[] = {
-  RgbColor(9, 28, 10), // LOW
-  RgbColor(16, 55, 20), // MEDIUM
-  RgbColor(25, 70, 45), // HIGH
+  RgbColor(30, 70, 50), // LOW
+  RgbColor(50, 100, 80), // MEDIUM
+  RgbColor(80, 130, 100), // HIGH
 };
 #else
 RgbColor colonColorDefault[] = {
-  RgbColor(9, 28, 10), // LOW
-  RgbColor(16, 55, 20), // MEDIUM
-  RgbColor(20, 85, 30), // HIGH
+  RgbColor(30, 70, 50), // LOW
+  RgbColor(50, 100, 80), // MEDIUM
+  RgbColor(120, 220, 140), // HIGH
 };
+/*
+RgbColor colonColorDefault[] = {
+  RgbColor(30, 70, 50), // LOW
+  RgbColor(50, 100, 80), // MEDIUM
+  RgbColor(100, 200, 120), // HIGH
+};
+*/
 #endif
 
 /*
@@ -169,15 +176,17 @@ const uint8_t bri_vals[3] = { // These need to be multiples of 8 to enable cross
 const uint8_t bri_vals_separate[3][6] = {
   {8, 8, 8, 8, 8, 8}, // Low brightness
   {24, 24, 24, 24, 24, 24}, // Medium brightness
-  {48, 48, 48, 48, 48, 48}, // High brightness
+  {32, 32, 32, 48, 48, 32}, // High brightness
 };
 
 
 // Better left alone global vars
 unsigned long configStartMillis, prevDisplayMillis;
+volatile int activeDot;
 uint8_t deviceMode = NORMAL_MODE;
 bool timeUpdateFirst = true;
 volatile bool toggleSeconds;
+bool breatheState;
 byte mac[6];
 volatile int dutyState = 0;
 volatile uint8_t digitsCache[] = {0, 0, 0, 0};
@@ -194,6 +203,7 @@ TimeChangeRule EDT = {"EDT", Last, Sun, Mar, 1, 120};  //UTC + 2 hours
 TimeChangeRule EST = {"EST", Last, Sun, Oct, 1, 60};  //UTC + 1 hours
 Timezone TZ(EDT, EST);
 NeoPixelBus<NeoGrbFeature, NeoWs2813Method> strip(PixelCount);
+NeoGamma<NeoGammaTableMethod> colorGamma;
 NeoPixelAnimator animations(PixelCount);
 DynamicJsonDocument json(2048); // config buffer
 //Ticker pwm_ticker;
@@ -201,6 +211,7 @@ Ticker fade_animation_ticker;
 Ticker onceTicker;
 Ticker colonTicker;
 ESP8266Timer ITimer;
+ESP8266Timer ITimer2;
 DNSServer dnsServer;
 ESP8266WebServer server(80);
 WiFiUDP Udp;
@@ -212,9 +223,10 @@ unsigned int localPort = 8888;  // local port to listen for UDP packets
 void setup() {
   // initialize digital pin LED_BUILTIN as an output.
   Serial.begin(115200);
+  Serial.println("");
 
   if (!SPIFFS.begin()) {
-    Serial.println("SPIFFS: Failed to mount file system");
+    Serial.println("[CONF] Failed to mount file system");
   }
   readConfig();
 
@@ -229,21 +241,21 @@ void setup() {
   const char* gw = json["gw"].as<const char*>();
   const char* sn = json["sn"].as<const char*>();
 
-  if (ssid != NULL && pass != NULL && ssid[0] != '\0' && pass[0] != '\0') {
-    Serial.println("WIFI: Setting up wifi");
+  if (ssid != NULL && pass != NULL && ssid[0] != '\0' && pass[0] != '\0') { 
+    Serial.println("[WIFI] Connecting to: " + String(ssid));
     WiFi.mode(WIFI_STA);
 
     if (ip != NULL && gw != NULL && sn != NULL && ip[0] != '\0' && gw[0] != '\0' && sn[0] != '\0') {
       IPAddress ip_address, gateway_ip, subnet_mask;
       if (!ip_address.fromString(ip) || !gateway_ip.fromString(gw) || !subnet_mask.fromString(sn)) {
-        Serial.println("Error setting up static IP, using auto IP instead. Check your configuration.");
+        Serial.println("[WIFI] Error setting up static IP, using auto IP instead. Check your configuration.");
       } else {
         WiFi.config(ip_address, gateway_ip, subnet_mask);
       }
     }
 
     // serializeJson(json, Serial);
-    strip.ClearTo(colorWifiConnecting);
+    updateColonColor(colorWifiConnecting);
     strip_show();
 
     WiFi.hostname(AP_NAME + macLastThreeSegments(mac));
@@ -251,42 +263,33 @@ void setup() {
 
     //startBlinking(200, colorWifiConnecting);
 
-
     for (int i = 0; i < 1000; i++) {
       if (WiFi.status() != WL_CONNECTED) {
         if (i > 200) { // 20s timeout
           deviceMode = CONFIG_MODE;
-          //colonTicker.detach();
-          strip.ClearTo(colorWifiFail);
+          updateColonColor(colorWifiFail);
           strip_show();
-          Serial.print("WIFI: Failed to connect to: ");
-          Serial.print(ssid);
-          Serial.println(", going into config mode.");
+          Serial.print("[WIFI] Failed to connect to: " + String(ssid) + ", going into config mode.");
           delay(500);
           break;
         }
-        blankAllDigits();
-        setDot(i % registersCount, 1);
         delay(100);
       } else {
-        //colonTicker.detach();
-        strip.ClearTo(colorWifiSuccess);
+        updateColonColor(colorWifiSuccess);
         strip_show();
-        Serial.println("WIFI: Connected...");
-        Serial.print("WIFI: Connected to: ");
+        Serial.print("[WIFI] Successfully connected to: ");
         Serial.println(WiFi.SSID());
-        Serial.print("WIFI: Mac address: ");
+        Serial.print("[WIFI] Mac address: ");
         Serial.println(WiFi.macAddress());
-        Serial.print("WIFI: IP address: ");
+        Serial.print("[WIFI] IP address: ");
         Serial.println(WiFi.localIP());
         delay(1000);
         break;
       }
     }
-
   } else {
     deviceMode = CONFIG_MODE;
-    Serial.println("SETTINGS: No credentials set, going to config mode.");
+    Serial.println("[CONF] No credentials set, going to config mode.");
   }
 
   if (deviceMode == CONFIG_MODE || deviceMode == CONNECTION_FAIL) {
@@ -311,13 +314,14 @@ void setup() {
     delay(500);
   }
 
-  if (!MDNS.begin(dns_name)) {
-    Serial.println("[ERROR] MDNS responder did not setup");
-  } else {
-    Serial.println("[INFO] MDNS setup is successful!");
-    MDNS.addService("http", "tcp", 80);
-  }
-
+  /*
+    if (!MDNS.begin(dns_name)) {
+      Serial.println("[ERROR] MDNS responder did not setup");
+    } else {
+      Serial.println("[INFO] MDNS setup is successful!");
+      MDNS.addService("http", "tcp", 80);
+    }
+  */
 }
 
 // the loop function runs over and over again forever
@@ -366,7 +370,7 @@ void loop() {
   animations.UpdateAnimations();
   strip_show();
 
-  MDNS.update();
+  //MDNS.update();
   server.handleClient();
   delay(10); // Keeps the ESP cold!
 

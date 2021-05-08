@@ -7,6 +7,28 @@
   }
 */
 
+String htmlHeader() {
+  String html_header = "<!DOCTYPE html><html><head><meta charset=\"UTF-8\">";
+  html_header += "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=0\">";
+  html_header += "<title>FLORA - Wi-Fi VFD Clock</title><style>html,body{margin:0;padding:0;font-size:16px;background:#333;}body,*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,\"Helvetica Neue\",Arial,sans-serif;}a{color:inherit;text-decoration:underline;}.wrapper{padding:30px 0;}.container{margin:auto;padding:40px;max-width:600px;color:#fff;background:#000;box-shadow:0 0 100px rgba(0,0,0,.5);border: 10px solid #444;border-radius:50px;}.row{margin-bottom:15px;}.flexrow{display:flex;justify-items:stretch;align-items:flex-start;flex-wrap:wrap;margin-left:-10px;}.col{width:25%;padding-left:10px;}h1{margin:0 0 10px 0;font-family:Arial,sans-serif;font-weight:300;font-size:2rem;}h1 + p{margin-bottom:30px;}h2{margin:30px 0 0 0;font-family:Arial,sans-serif;font-weight:300;font-size:1.5rem;}h3{font-family:Arial,sans-serif;font-weight:300;font-size:1.2rem;margin: 25px 0 10px 0;}p{font-size:.85rem;margin:0 0 20px 0;color:rgba(255,255,255,.7);}label{display:block;width:100%;margin-bottom:5px;}label+p{margin-bottom:5px;}input[type=\"text\"],input[type=\"number\"],input[type=\"password\"],select{display:inline-block;width:100%;height:42px;line-height:38px;padding:0 20px;color:#fff;border:2px solid #666;background:none;border-radius:5px;transition:.15s;box-shadow:none;outline:none;}input[type=\"text\"]:hover,input[type=\"number\"]:hover,input[type=\"password\"]:hover,select:hover{border-color:#69b6ac;}input[type=\"text\"]:focus,input[type=\"password\"]:focus,select:focus{border-color:#a5fff3;}option{color:#000;}button{display:block;width:100%;padding:10px 20px;font-size:1rem;font-weight:700;text-transform:uppercase;background:#43ffe5;border:0;border-radius:5px;cursor:pointer;transition:.15s;outline:none;}button:hover{background:#a5fff3;}.github{padding:15px;text-align:center;}.github a{color:#43ffe5;transition:.15s;}.github a:hover{color:#a5fff3;}.github p{margin:0;}.mac{display:inline-block;margin-top:8px;padding:2px 5px;color:#fff;background:#444;border-radius:3px;}</style><style media=\"all and (max-width:520px)\">.wrapper{padding:0;}.container{padding:25px 15px;border:0;border-radius:0;}.col{width:50%;}</style></head><body><div class=\"wrapper\">";
+  html_header += "<div class=\"container\">";
+  return html_header;
+}
+
+String htmlFooter() {
+  String html_footer = "</div>";
+  html_footer += "<div class=\"github\"><p>";
+  html_footer += FW_NAME;
+  html_footer += " ";
+  html_footer += FW_VERSION;
+  html_footer += ", check out <a href=\"https://github.com/mcer12/Flora-ESP8266\" target=\"_blank\"><strong>FLORA</strong> on GitHub</a></p> </div>";
+  html_footer += "</div>";
+  html_footer += "<script>function toggleVisibility(eventsender, idOfObjectToToggle){var myNewState = \"none\";if (eventsender.checked === true){myNewState = \"block\";}document.getElementById(idOfObjectToToggle).style.display = myNewState;}toggleVisibility(document.getElementById('dst_enable'), 'dst_wrapper');</script>";
+  html_footer += "</body> </html>";
+  return html_footer;
+}
+
+
 /** Is this an IP? */
 boolean isIp(String str) {
   for (size_t i = 0; i < str.length(); i++) {
@@ -30,9 +52,11 @@ String toStringIp(IPAddress ip) {
 
 /** Redirect to captive portal if we got a request for another domain. Return true in that case so the page handler do not try to handle the request again. */
 boolean captivePortal() {
-  if (!isIp(server.hostHeader()) && server.hostHeader() != (String(dns_name) + ".local")) {
-    Serial.println("Request redirected to captive portal");
-    server.sendHeader("Location", String("http://") + toStringIp(server.client().localIP()), true);
+  if (deviceMode == CONFIG_MODE && !isIp(server.hostHeader()) && server.hostHeader() != String(dns_name) + ".local") {
+    Serial.print("[SERV] Request to ");
+    Serial.print(server.hostHeader());
+    Serial.println(" redirected to captive portal");
+    server.sendHeader("Location", "http://" + String(dns_name) + ".local"/* + toStringIp(server.client().localIP())*/, true);
     server.send(302, "text/plain", "");   // Empty content inhibits Content-length header so we have to close the socket ourselves.
     server.client().stop(); // Stop is needed because we sent no content length
     return true;
@@ -40,20 +64,20 @@ boolean captivePortal() {
   return false;
 }
 
-void startMDNS() {
+bool startMDNS() {
   int tryCount = 0;
   if (!MDNS.begin(dns_name, WiFi.softAPIP())) {
-    Serial.println("[ERROR] MDNS responder did not setup");
+    Serial.println("[SERV] MDNS responder did not setup");
     while (tryCount < 10) {
       tryCount++;
       delay(500);
     }
-  } else {
-    Serial.println("[INFO] MDNS setup is successful!");
+    return false;
   }
+  return true;
 }
 
-void startServer() {
+bool startServer() {
   httpUpdateServer.setup(&server, update_path, update_username, update_password);
   server.on("/", handleRoot);
   server.on("/generate_204", handleRoot);  //Android captive portal. Maybe not needed. Might be handled by notFound handler.
@@ -65,7 +89,7 @@ void startServer() {
 void startConfigPortal() {
   configStartMillis = millis(); // start counter
 
-  strip.ClearTo(colorConfigMode);
+  updateColonColor(colorConfigMode);
   strip_show();
 
   String ap_name = AP_NAME + macLastThreeSegments(mac);
@@ -76,7 +100,7 @@ void startConfigPortal() {
   WiFi.softAPConfig(ap_ip, ap_ip, IPAddress(255, 255, 255, 0));
   WiFi.softAP(ap_name.c_str());
   delay(100);
-  Serial.print("IP address: ");
+  Serial.print("[SERV] IP address: ");
   Serial.println(WiFi.softAPIP());
 
   /* Setup the DNS server redirecting all the domains to the apIP */
@@ -86,7 +110,10 @@ void startConfigPortal() {
   startMDNS();
   startServer();
 
+  Serial.println("[SERV] Captive portal started");
+
   unsigned int lastTest = 0;
+
   while (deviceMode == CONFIG_MODE) { // BLOCKING INFINITE LOOP
 
     time_t remainingSeconds = (CONFIG_TIMEOUT - (millis() - configStartMillis)) / 1000;
@@ -136,29 +163,29 @@ void handleNotFound() {
   if (captivePortal()) { // If caprive portal redirect instead of displaying the error page.
     return;
   }
-  String message = F("File Not Found\n\n");
-  message += F("URI: ");
-  message += server.uri();
-  message += F("\nMethod: ");
-  message += (server.method() == HTTP_GET) ? "GET" : "POST";
-  message += F("\nArguments: ");
-  message += server.args();
-  message += F("\n");
 
+  String html = htmlHeader();
+  html += "<h1>404 - Page not found</h1>";
+  html += "<h2>\"The right man in the wrong place can make all the difference in the world.\"</h2>";
   for (uint8_t i = 0; i < server.args(); i++) {
-    message += String(F(" ")) + server.argName(i) + F(": ") + server.arg(i) + F("\n");
+    html += "<p>";
+    html += String(F(" ")) + server.argName(i) + F(": ") + server.arg(i) + F("\n");
+    html += "</p>";
   }
+  html += htmlFooter();
+  
   server.sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
   server.sendHeader("Pragma", "no-cache");
   server.sendHeader("Expires", "-1");
-  server.send(404, "text/plain", message);
+
+  server.send(404, "text/html", html);
 }
 
 void handleRoot() {
   if (server.args()) {
 
     if (server.hasArg("is_form")) {
-      strip.ClearTo(colorConfigSave);
+      updateColonColor(colorConfigSave);
       strip_show();
     }
 
@@ -255,15 +282,10 @@ void handleRoot() {
 
   }
 
-  String html = "";
+  String html = htmlHeader();
 
   if (!server.args() || (server.args() && server.hasArg("is_form"))) {
-
-    html += "<!DOCTYPE html><html><head><meta charset=\"UTF-8\">";
-    html += "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=0\">";
-    html += "<title>FLORA - Wi-Fi VFD Clock</title><style>html,body{margin:0;padding:0;font-size:16px;background:#333;}body,*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,\"Helvetica Neue\",Arial,sans-serif;}a{color:inherit;text-decoration:underline;}.wrapper{padding:30px 0;}.container{margin:auto;padding:40px;max-width:600px;color:#fff;background:#000;box-shadow:0 0 100px rgba(0,0,0,.5);border: 10px solid #444;border-radius:50px;}.row{margin-bottom:15px;}.flexrow{display:flex;justify-items:stretch;align-items:flex-start;flex-wrap:wrap;margin-left:-10px;}.col{width:25%;padding-left:10px;}h1{margin:0 0 10px 0;font-family:Arial,sans-serif;font-weight:300;font-size:2rem;}h1 + p{margin-bottom:30px;}h2{margin:30px 0 0 0;font-family:Arial,sans-serif;font-weight:300;font-size:1.5rem;}h3{font-family:Arial,sans-serif;font-weight:300;font-size:1.2rem;margin: 25px 0 10px 0;}p{font-size:.85rem;margin:0 0 20px 0;color:rgba(255,255,255,.7);}label{display:block;width:100%;margin-bottom:5px;}label+p{margin-bottom:5px;}input[type=\"text\"],input[type=\"number\"],input[type=\"password\"],select{display:inline-block;width:100%;height:42px;line-height:38px;padding:0 20px;color:#fff;border:2px solid #666;background:none;border-radius:5px;transition:.15s;box-shadow:none;outline:none;}input[type=\"text\"]:hover,input[type=\"number\"]:hover,input[type=\"password\"]:hover,select:hover{border-color:#69b6ac;}input[type=\"text\"]:focus,input[type=\"password\"]:focus,select:focus{border-color:#a5fff3;}option{color:#000;}button{display:block;width:100%;padding:10px 20px;font-size:1rem;font-weight:700;text-transform:uppercase;background:#43ffe5;border:0;border-radius:5px;cursor:pointer;transition:.15s;outline:none;}button:hover{background:#a5fff3;}.github{padding:15px;text-align:center;}.github a{color:#43ffe5;transition:.15s;}.github a:hover{color:#a5fff3;}.github p{margin:0;}.mac{display:inline-block;margin-top:8px;padding:2px 5px;color:#fff;background:#444;border-radius:3px;}</style><style media=\"all and (max-width:520px)\">.wrapper{padding:0;}.container{padding:25px 15px;border:0;border-radius:0;}.col{width:50%;}</style></head><body><div class=\"wrapper\">";
-    //String html = "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1,maximum-scale=1\"><title>FLORA - Wi-Fi VFD Clock</title><style>html,body{margin:0;padding:0;font-size:16px;background:#333;}body,*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,\"Helvetica Neue\",Arial,sans-serif;}a{color:inherit;text-decoration:underline;}.wrapper{padding:30px 0;}.container{margin:auto;padding:40px;max-width:500px;color:#fff;background:#000;box-shadow:0 0 100px rgba(0,0,0,.5);border: 10px solid #444;border-radius:50px;}.row{margin-bottom:15px;}.flexrow{display:flex;justify-items:stretch;align-items:flex-start;margin-left:-10px;flex-wrap:wrap;}.col{width:25%;padding-left:10px;}h1{margin:0 0 10px 0;font-family:Arial,sans-serif;font-weight:300;font-size:2rem;}h1 + p{margin-bottom:30px;}h2{margin:30px 0 0 0;font-family:Arial,sans-serif;font-weight:300;font-size:1.5rem;}h3{font-family:Arial,sans-serif;font-weight:300;font-size:1.2rem;margin: 25px 0 10px 0;}p{font-size:.85rem;margin:0 0 20px 0;color:rgba(255,255,255,.7);}label{display:block;width:100%;margin-bottom:5px;}label+p{margin-bottom:5px;}input[type=\"text\"],input[type=\"number\"],input[type=\"password\"],select{display:inline-block;width:100%;height:42px;line-height:38px;padding:0 20px;color:#fff;border:2px solid #666;background:none;border-radius:5px;transition:.15s;box-shadow:none;outline:none;}input[type=\"text\"]:hover,input[type=\"number\"]:hover,input[type=\"password\"]:hover,select:hover{border-color:#b1734f;}input[type=\"text\"]:focus,input[type=\"password\"]:focus,select:focus{border-color:#ffb78e;}option{color:#000;}button{display:block;width:100%;padding:10px 20px;font-size:1rem;font-weight:700;text-transform:uppercase;background:#ffa46f;border:0;border-radius:5px;cursor:pointer;transition:.15s;outline:none;}button:hover{background:#ffb78e;}.github{padding:15px;text-align:center;}.github a{color:#ffa46f;transition:.15s;}.github a:hover{color:#ffb78e;}.github p{margin:0;}.mac{display:inline-block;margin-top:8px;padding:2px 5px;color:#fff;background:#444;border-radius:3px;}</style><style media=\"all and (max-width:520px)\">.wrapper{padding:0;}.container{padding:25px 15px;border:0;border-radius:0;}.col{width:50%;}</style></head><body><div class=\"wrapper\">";
-    html += "<div class=\"container\"> <form method=\"post\" action=\"/\">";
+    html += "<form method=\"post\" action=\"/\">";
     html += "<h1>FLORA - Wi-Fi VFD Clock</h1> <p></p>";
 
     if (deviceMode == CONFIG_MODE) {
@@ -338,6 +360,9 @@ void handleRoot() {
     html += "<option value=\"1\"";
     if (colon == 1) html += " selected";
     html += ">Always ON</option>";
+    html += "<option value=\"3\"";
+    if (colon == 3) html += " selected";
+    html += ">Always ON with gradient</option>";
     html += "<option value=\"2\"";
     if (colon == 2) html += " selected";
     html += ">ON/OFF each second</option>";
@@ -660,15 +685,9 @@ void handleRoot() {
     // This is just to check if it's a remote GET request or full update.
     html += "<input type=\"hidden\" name=\"is_form\" value=\"1\">";
 
-    html += "<div class=\"row\"><button type=\"submit\">Save and reboot</button></div></form></div>";
-    html += "<div class=\"github\"><p>";
-    html += FW_NAME;
-    html += " ";
-    html += FW_VERSION;
-    html += ", check out <a href=\"https://github.com/mcer12/Flora-ESP8266\" target=\"_blank\"><strong>FLORA</strong> on GitHub</a></p> </div>";
-    html += "</div>";
-    html += "<script>function toggleVisibility(eventsender, idOfObjectToToggle){var myNewState = \"none\";if (eventsender.checked === true){myNewState = \"block\";}document.getElementById(idOfObjectToToggle).style.display = myNewState;}toggleVisibility(document.getElementById('dst_enable'), 'dst_wrapper');</script>";
-    html += "</body> </html>";
+    html += "<div class=\"row\"><button type=\"submit\">Save and reboot</button></div></form>";
+    html += htmlFooter();
+
     server.send(200, "text/html", html);
 
   } else {

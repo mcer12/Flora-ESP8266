@@ -23,8 +23,8 @@ String macLastThreeSegments(const uint8_t* mac) {
 bool readConfig() {
   File stateFile = SPIFFS.open("/config.json", "r");
   if (!stateFile) {
-    Serial.println("Failed to read config file... first run?");
-    Serial.println("Creating new file...");
+    Serial.println("[CONF] Failed to read config file... first run?");
+    Serial.println("[CONF] Creating new file...");
     saveConfig();
     return false;
   }
@@ -36,7 +36,7 @@ bool readConfig() {
 bool saveConfig() {
   File configFile = SPIFFS.open("/config.json", "w");
   if (!configFile) {
-    Serial.println("Failed to open config file for writing");
+    Serial.println("[CONF] Failed to open config file for writing");
     return false;
   }
   serializeJson(json, configFile);
