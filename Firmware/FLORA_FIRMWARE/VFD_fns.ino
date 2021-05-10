@@ -22,15 +22,27 @@ void ICACHE_RAM_ATTR shiftWriteBytes(volatile byte *data) {
   // set gpio through register manipulation, fast!
   GPOS = 1 << LATCH;
   GPOC = 1 << LATCH;
-  /*
-    digitalWrite(LATCH, HIGH);
-    digitalWrite(LATCH, LOW);
-  */
-
 }
 
 void ICACHE_RAM_ATTR TimerHandler()
 {
+#if !defined(CLOCK_VERSION_IV12)
+  // Only one ISR timer is available so if we want the dots to not glitch during wifi connection, we need to put it here...
+  // speed of the dots depends on refresh frequency of the display
+  if (enableDotsAnimation) {
+    int stepCount = dotsAnimationSteps / registersCount;
+
+    for (int i = 0; i < registersCount; i++) {
+      if (dotsAnimationState >= stepCount * i && dotsAnimationState < stepCount * (i + 1)) {
+        segmentBrightness[i][7] = bri_vals_separate[bri][i];
+      } else {
+        segmentBrightness[i][7] = 0;
+      }
+    }
+    dotsAnimationState++;
+    if (dotsAnimationState >= dotsAnimationSteps) dotsAnimationState = 0;
+  }
+#endif
 
   // Normal PWM
   for (int i = 0; i < registersCount; i++) {
@@ -47,12 +59,14 @@ void ICACHE_RAM_ATTR TimerHandler()
 
   for (int i = 0; i < registersCount; i++) {
     shiftedDutyState[i]++;
-    if (shiftedDutyState[i] >= pwmResolution) shiftedDutyState[i] = 0;
+    if (shiftedDutyState[i] >= pwmResolution) {
+      shiftedDutyState[i] = 0;
+    }
   }
+
   //if (dutyState > pwmResolution) dutyState = 0;
   //else dutyState++;
 }
-
 
 void initScreen() {
   pinMode(DATA, INPUT);
@@ -253,10 +267,10 @@ void showIP(int delay_ms) {
 void setupPhaseShift() {
   disableScreen();
   uint8_t shiftSteps = floor(pwmResolution / registersCount);
-  if(shiftSteps)
-  for (int i = 0; i < registersCount; i++) {
-    shiftedDutyState[i] = i * shiftSteps;
-  }
+  if (shiftSteps)
+    for (int i = 0; i < registersCount; i++) {
+      shiftedDutyState[i] = i * shiftSteps;
+    }
   enableScreen();
 }
 

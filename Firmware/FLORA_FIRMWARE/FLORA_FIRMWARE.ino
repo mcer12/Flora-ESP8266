@@ -26,7 +26,7 @@
 // Pick a clock version below!
 //#define CLOCK_VERSION_IV6
 //#define CLOCK_VERSION_IV12
-//#define CLOCK_VERSION_IV22
+#define CLOCK_VERSION_IV22
 
 #if !defined(CLOCK_VERSION_IV6) && !defined(CLOCK_VERSION_IV12) && !defined(CLOCK_VERSION_IV22)
 #error "You have to pick a clock version! Line 25"
@@ -34,7 +34,7 @@
 
 #define AP_NAME "FLORA_"
 #define FW_NAME "FLORA"
-#define FW_VERSION "4.1"
+#define FW_VERSION "4.2"
 #define CONFIG_TIMEOUT 300000 // 300000 = 5 minutes
 
 // ONLY CHANGE DEFINES BELOW IF YOU KNOW WHAT YOU'RE DOING!
@@ -57,6 +57,7 @@ const char* update_username = "flora";
 const char* update_password = "flora";
 const char* ntpServerName = "pool.ntp.org";
 
+const int dotsAnimationSteps = 3000; // dotsAnimationSteps * TIMER_INTERVAL_uS = one animation cycle time in microseconds
 const uint8_t PixelCount = 12; // Addressable LED count
 RgbColor colorConfigMode = RgbColor(130, 0, 130);
 RgbColor colorConfigSave = RgbColor(0, 0, 130);
@@ -88,11 +89,11 @@ RgbColor colonColorDefault[] = {
   RgbColor(120, 220, 140), // HIGH
 };
 /*
-RgbColor colonColorDefault[] = {
+  RgbColor colonColorDefault[] = {
   RgbColor(30, 70, 50), // LOW
   RgbColor(50, 100, 80), // MEDIUM
   RgbColor(100, 200, 120), // HIGH
-};
+  };
 */
 #endif
 
@@ -196,6 +197,8 @@ volatile uint8_t bri = 0;
 volatile uint8_t crossFadeTime = 0;
 uint8_t timeUpdateStatus = 0; // 0 = no update, 1 = update success, 2 = update fail,
 uint8_t failedAttempts = 0;
+volatile bool enableDotsAnimation;
+volatile unsigned short dotsAnimationState;
 RgbColor colonColor;
 IPAddress ip_addr;
 
@@ -206,12 +209,10 @@ NeoPixelBus<NeoGrbFeature, NeoWs2813Method> strip(PixelCount);
 NeoGamma<NeoGammaTableMethod> colorGamma;
 NeoPixelAnimator animations(PixelCount);
 DynamicJsonDocument json(2048); // config buffer
-//Ticker pwm_ticker;
 Ticker fade_animation_ticker;
 Ticker onceTicker;
 Ticker colonTicker;
 ESP8266Timer ITimer;
-ESP8266Timer ITimer2;
 DNSServer dnsServer;
 ESP8266WebServer server(80);
 WiFiUDP Udp;
@@ -241,7 +242,7 @@ void setup() {
   const char* gw = json["gw"].as<const char*>();
   const char* sn = json["sn"].as<const char*>();
 
-  if (ssid != NULL && pass != NULL && ssid[0] != '\0' && pass[0] != '\0') { 
+  if (ssid != NULL && pass != NULL && ssid[0] != '\0' && pass[0] != '\0') {
     Serial.println("[WIFI] Connecting to: " + String(ssid));
     WiFi.mode(WIFI_STA);
 
@@ -253,8 +254,10 @@ void setup() {
         WiFi.config(ip_address, gateway_ip, subnet_mask);
       }
     }
-
     // serializeJson(json, Serial);
+
+    enableDotsAnimation = true; // Start the dots animation
+
     updateColonColor(colorWifiConnecting);
     strip_show();
 
@@ -276,6 +279,7 @@ void setup() {
         delay(100);
       } else {
         updateColonColor(colorWifiSuccess);
+        enableDotsAnimation = false;
         strip_show();
         Serial.print("[WIFI] Successfully connected to: ");
         Serial.println(WiFi.SSID());
@@ -300,9 +304,7 @@ void setup() {
   }
 
   colonColor = colonColorDefault[bri];
-  initScreen();
-
-  //initColon();
+  //initScreen();
 
   if (json["rst_cycle"].as<unsigned int>() == 1) {
     cycleDigits();
