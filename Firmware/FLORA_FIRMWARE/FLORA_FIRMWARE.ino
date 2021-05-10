@@ -34,7 +34,7 @@
 
 #define AP_NAME "FLORA_"
 #define FW_NAME "FLORA"
-#define FW_VERSION "4.0"
+#define FW_VERSION "4.1"
 #define CONFIG_TIMEOUT 300000 // 300000 = 5 minutes
 
 // ONLY CHANGE DEFINES BELOW IF YOU KNOW WHAT YOU'RE DOING!
@@ -176,7 +176,7 @@ const uint8_t bri_vals[3] = { // These need to be multiples of 8 to enable cross
 const uint8_t bri_vals_separate[3][6] = {
   {8, 8, 8, 8, 8, 8}, // Low brightness
   {24, 24, 24, 24, 24, 24}, // Medium brightness
-  {32, 32, 32, 48, 48, 32}, // High brightness
+  {48, 48, 48, 48, 48, 48}, // High brightness
 };
 
 

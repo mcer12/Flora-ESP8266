@@ -173,7 +173,7 @@ void handleNotFound() {
     html += "</p>";
   }
   html += htmlFooter();
-  
+
   server.sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
   server.sendHeader("Pragma", "no-cache");
   server.sendHeader("Expires", "-1");
@@ -360,9 +360,12 @@ void handleRoot() {
     html += "<option value=\"1\"";
     if (colon == 1) html += " selected";
     html += ">Always ON</option>";
+#if !defined(CLOCK_VERSION_IV22)
+    // gradient doesn't make sense on IV-22 colon
     html += "<option value=\"3\"";
     if (colon == 3) html += " selected";
-    html += ">Always ON with gradient</option>";
+    html += ">Always ON (gradient)</option>";
+#endif
     html += "<option value=\"2\"";
     if (colon == 2) html += " selected";
     html += ">ON/OFF each second</option>";

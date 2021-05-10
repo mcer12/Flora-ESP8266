@@ -42,18 +42,15 @@ void updateColonColor(RgbColor color) {
   RgbColor colorMed = color;
   RgbColor colorLow = color;
 
-#if defined(CLOCK_VERSION_IV6) || defined(CLOCK_VERSION_IV12)
-  if (json["colon"].as<int>() == 4) {
+  if (json["colon"].as<int>() == 3) {
     colorMed = RgbColor::LinearBlend(color, RgbColor(0, 0, 0), 0.5);
     colorLow = RgbColor::LinearBlend(color, RgbColor(0, 0, 0), 0.7);
   }
-#endif
-
+  
   // Gamma correction => linearize brightness
   colorHigh = colorGamma.Correct(colorHigh);
   colorMed = colorGamma.Correct(colorMed);
   colorLow = colorGamma.Correct(colorLow);
-
 
   strip.SetPixelColor(2, colorHigh);
   strip.SetPixelColor(3, colorHigh);
