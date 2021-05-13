@@ -47,7 +47,7 @@ void ICACHE_RAM_ATTR TimerHandler()
   // Normal PWM
   for (int i = 0; i < registersCount; i++) {
     for (int ii = 0; ii < segmentCount; ii++) {
-      if (shiftedDutyState[i] < segmentBrightness[i][ii]) {
+      if (isPoweredOn && shiftedDutyState[i] < segmentBrightness[i][ii]) {
         shiftSetValue(digitPins[i][ii], true);
       } else {
         shiftSetValue(digitPins[i][ii], false);
@@ -75,6 +75,7 @@ void initScreen() {
   digitalWrite(LATCH, LOW);
 
   bri = json["bri"].as<int>();
+  setupBriBalance();
   crossFadeTime = json["fade"].as<int>();
   setupPhaseShift();
   setupCrossFade();
@@ -96,25 +97,15 @@ void enableScreen() {
 void disableScreen() {
   ITimer.detachInterrupt();
 }
-/*
-  void handlePWM() {
 
-  for (int i = 0; i < 6; i++) {
-    for (int ii = 0; ii < 8; ii++) {
-      if (dutyState < segmentBrightness[i][ii]) {
-        shift.setNoUpdate(digitPins[i][ii], 1);
-      } else {
-        shift.setNoUpdate(digitPins[i][ii], 0);
-      }
-    }
+void setupBriBalance() {
+  if (json["bal_enable"].as<int>() == 0) return;
+  for (int i = 0; i < registersCount; i++) {
+    bri_vals_separate[0][i] = json["bal"]["low"][i].as<int>(); // low bri balance
+    bri_vals_separate[1][i] = json["bal"]["high"][i].as<int>(); // medium brightness is ignored and set to high
+    bri_vals_separate[2][i] = json["bal"]["high"][i].as<int>(); // high bri balance
   }
-  shift.updateRegisters();
-
-  if (dutyState >= bri_vals[2]) dutyState = 0;
-  else dutyState++;
-
-  }
-*/
+}
 
 void setupCrossFade() {
   if (crossFadeTime > 0) {
@@ -126,6 +117,8 @@ void setupCrossFade() {
 void handleFade() {
   for (int i = 0; i < registersCount; i++) {
     for (int ii = 0; ii < segmentCount; ii++) {
+      if (targetBrightness[i][ii] > bri_vals_separate[bri][i]) targetBrightness[i][ii] = bri_vals_separate[bri][i];
+
       if (crossFadeTime > 0) {
         if (targetBrightness[i][ii] > segmentBrightness[i][ii]) {
           segmentBrightness[i][ii] += bri_vals_separate[bri][i] / dimmingSteps;

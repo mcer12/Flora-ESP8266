@@ -1,33 +1,18 @@
-/*
-  void toggleConfigMode() {
-  if ((batteryPercentage() > 100 || digitalRead(12) == LOW) && buttonWakeUp()) {
-    deviceMode = CONFIG_MODE;
-    configStartMillis = millis(); // start counter
-  }
-  }
-*/
 
-String htmlHeader() {
-  String html_header = "<!DOCTYPE html><html><head><meta charset=\"UTF-8\">";
-  html_header += "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=0\">";
-  html_header += "<title>FLORA - Wi-Fi VFD Clock</title><style>html,body{margin:0;padding:0;font-size:16px;background:#333;}body,*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,\"Helvetica Neue\",Arial,sans-serif;}a{color:inherit;text-decoration:underline;}.wrapper{padding:30px 0;}.container{margin:auto;padding:40px;max-width:600px;color:#fff;background:#000;box-shadow:0 0 100px rgba(0,0,0,.5);border: 10px solid #444;border-radius:50px;}.row{margin-bottom:15px;}.flexrow{display:flex;justify-items:stretch;align-items:flex-start;flex-wrap:wrap;margin-left:-10px;}.col{width:25%;padding-left:10px;}h1{margin:0 0 10px 0;font-family:Arial,sans-serif;font-weight:300;font-size:2rem;}h1 + p{margin-bottom:30px;}h2{margin:30px 0 0 0;font-family:Arial,sans-serif;font-weight:300;font-size:1.5rem;}h3{font-family:Arial,sans-serif;font-weight:300;font-size:1.2rem;margin: 25px 0 10px 0;}p{font-size:.85rem;margin:0 0 20px 0;color:rgba(255,255,255,.7);}label{display:block;width:100%;margin-bottom:5px;}label+p{margin-bottom:5px;}input[type=\"text\"],input[type=\"number\"],input[type=\"password\"],select{display:inline-block;width:100%;height:42px;line-height:38px;padding:0 20px;color:#fff;border:2px solid #666;background:none;border-radius:5px;transition:.15s;box-shadow:none;outline:none;}input[type=\"text\"]:hover,input[type=\"number\"]:hover,input[type=\"password\"]:hover,select:hover{border-color:#69b6ac;}input[type=\"text\"]:focus,input[type=\"password\"]:focus,select:focus{border-color:#a5fff3;}option{color:#000;}button{display:block;width:100%;padding:10px 20px;font-size:1rem;font-weight:700;text-transform:uppercase;background:#43ffe5;border:0;border-radius:5px;cursor:pointer;transition:.15s;outline:none;}button:hover{background:#a5fff3;}.github{padding:15px;text-align:center;}.github a{color:#43ffe5;transition:.15s;}.github a:hover{color:#a5fff3;}.github p{margin:0;}.mac{display:inline-block;margin-top:8px;padding:2px 5px;color:#fff;background:#444;border-radius:3px;}</style><style media=\"all and (max-width:520px)\">.wrapper{padding:0;}.container{padding:25px 15px;border:0;border-radius:0;}.col{width:50%;}</style></head><body><div class=\"wrapper\">";
-  html_header += "<div class=\"container\">";
-  return html_header;
-}
+static const char html_header[] PROGMEM =
+  "<!DOCTYPE html><html><head><meta charset=\"UTF-8\">"
+  "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=0\">"
+  "<title>FLORA - Wi-Fi VFD Clock</title><style>html,body{margin:0;padding:0;font-size:16px;background:#333;}body,*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,\"Helvetica Neue\",Arial,sans-serif;}a{color:inherit;text-decoration:underline;}.wrapper{padding:30px 0;}.container{margin:auto;padding:40px;max-width:600px;color:#fff;background:#000;box-shadow:0 0 100px rgba(0,0,0,.5);border: 10px solid #444;border-radius:50px;}.row{margin-bottom:15px;}.flexrow{display:flex;justify-items:stretch;align-items:flex-start;flex-wrap:wrap;margin-left:-10px;}.col{flex: 1;padding-left:10px;}h1{margin:0 0 10px 0;font-family:Arial,sans-serif;font-weight:300;font-size:2rem;}h1 + p{margin-bottom:30px;}h2{margin:30px 0 0 0;font-family:Arial,sans-serif;font-weight:300;font-size:1.5rem;}h3{font-family:Arial,sans-serif;font-weight:300;font-size:1.2rem;margin: 25px 0 10px 0;}div+h3{margin-top:10px;}p{font-size:.85rem;margin:0 0 20px 0;color:rgba(255,255,255,.7);}label{display:block;width:100%;margin-bottom:5px;}label+p{margin-bottom:5px;}input[type=\"text\"],input[type=\"number\"],input[type=\"password\"],select{display:inline-block;width:100%;height:42px;line-height:38px;padding:0 20px;color:#fff;border:2px solid #666;background:none;border-radius:5px;transition:.15s;box-shadow:none;outline:none;}input[type=\"text\"]:hover,input[type=\"number\"]:hover,input[type=\"password\"]:hover,select:hover{border-color:#69b6ac;}input[type=\"text\"]:focus,input[type=\"password\"]:focus,select:focus{border-color:#a5fff3;}option{color:#000;}button{display:block;width:100%;padding:10px 20px;font-size:1rem;font-weight:700;text-transform:uppercase;background:#43ffe5;border:0;border-radius:5px;cursor:pointer;transition:.15s;outline:none;}button:hover{background:#a5fff3;}.github{padding:15px;text-align:center;}.github a{color:#43ffe5;transition:.15s;}.github a:hover{color:#a5fff3;}.github p{margin:0;}.mac{display:inline-block;margin-top:8px;padding:2px 5px;color:#fff;background:#444;border-radius:3px;}</style><style media=\"all and (max-width:520px)\">.wrapper{padding:0;}.container{padding:25px 15px;border:0;border-radius:0;}.col{flex: auto;width:50%;}</style></head><body><div class=\"wrapper\">"
+  "<div class=\"container\">";
 
-String htmlFooter() {
-  String html_footer = "</div>";
-  html_footer += "<div class=\"github\"><p>";
-  html_footer += FW_NAME;
-  html_footer += " ";
-  html_footer += FW_VERSION;
-  html_footer += ", check out <a href=\"https://github.com/mcer12/Flora-ESP8266\" target=\"_blank\"><strong>FLORA</strong> on GitHub</a></p> </div>";
-  html_footer += "</div>";
-  html_footer += "<script>function toggleVisibility(eventsender, idOfObjectToToggle){var myNewState = \"none\";if (eventsender.checked === true){myNewState = \"block\";}document.getElementById(idOfObjectToToggle).style.display = myNewState;}toggleVisibility(document.getElementById('dst_enable'), 'dst_wrapper');</script>";
-  html_footer += "</body> </html>";
-  return html_footer;
-}
-
+static const char html_footer[] PROGMEM =
+  "</div>"
+  "<div class=\"github\"><p>"
+  "{{fw_name}} {{fw_version}}"
+  ", check out <a href=\"https://github.com/mcer12/Flora-ESP8266\" target=\"_blank\"><strong>FLORA</strong> on GitHub</a></p> </div>"
+  "</div>"
+  "<script>function toggleVisibility(eventsender, idOfObjectToToggle){var myNewState = \"none\";if (eventsender.checked === true){myNewState = \"block\";}document.getElementById(idOfObjectToToggle).style.display = myNewState;}toggleVisibility(document.getElementById('dst_enable'), 'dst_wrapper');toggleVisibility(document.getElementById('bal_enable'), 'bal_wrapper');</script>"
+  "</body> </html>";
 
 /** Is this an IP? */
 boolean isIp(String str) {
@@ -75,15 +60,6 @@ bool startMDNS() {
     return false;
   }
   return true;
-}
-
-bool startServer() {
-  httpUpdateServer.setup(&server, update_path, update_username, update_password);
-  server.on("/", handleRoot);
-  server.on("/generate_204", handleRoot);  //Android captive portal. Maybe not needed. Might be handled by notFound handler.
-  server.on("/fwlink", handleRoot);  //Microsoft captive portal. Maybe not needed. Might be handled by notFound handler.
-  server.onNotFound(handleNotFound);
-  server.begin();
 }
 
 void startConfigPortal() {
@@ -159,12 +135,80 @@ void startConfigPortal() {
   }
 }
 
+bool startServer() {
+  httpUpdateServer.setup(&server, update_path, update_username, update_password);
+  server.on("/", handleRoot);
+  server.on("/generate_204", handleRoot);  //Android captive portal. Maybe not needed. Might be handled by notFound handler.
+  server.on("/fwlink", handleRoot);  //Microsoft captive portal. Maybe not needed. Might be handled by notFound handler.
+  //server.on("/json", handleJson); // show raw json at given url path
+
+  // diyHue
+  server.on("/detect", handleDiyHueDetect);
+  server.on("/set", handleDiyHueSet);
+  //server.on("/switch", handleDiyHueSwitch);
+  server.on("/get", handleDiyHueGet);
+
+  server.onNotFound(handleNotFound);
+  server.begin();
+}
+
+void handleDiyHueDetect() {
+  server.send(200, "text/plain", "{\"hue\": \"bulb\",\"lights\": " + String(1) + ",\"name\": \"" + AP_NAME + macLastThreeSegments(mac) +  "\",\"modelid\": \"LWB010\",\"mac\": \"" + String(mac[5], HEX) + ":"  + String(mac[4], HEX) + ":" + String(mac[3], HEX) + ":" + String(mac[2], HEX) + ":" + String(mac[1], HEX) + ":" + String(mac[0], HEX) + "\"}");
+}
+
+void handleDiyHueGet() {
+  int diyhueBri;
+  if (bri == 0) diyhueBri = 0;
+  if (bri == 1) diyhueBri = 128;
+  if (bri == 2) diyhueBri = 255;
+  String power_status = isPoweredOn ? "true" : "false";
+  server.send(200, "text/plain", "{\"on\": " + power_status + ", \"bri\": " + String(diyhueBri) + "}");
+}
+
+void handleDiyHueSet() {
+  for (uint8_t i = 0; i < server.args(); i++) {
+    if (server.argName(i) == "on") {
+      if (server.arg(i) == "True" || server.arg(i) == "true") {
+        isPoweredOn = true;
+      }
+      else {
+        isPoweredOn = false;
+      }
+    }
+    else if (server.argName(i) == "bri" || server.argName(i) == "bri_inc") {
+      isPoweredOn = true;
+      if (server.arg(i).toInt() != 0) {
+        if (server.arg(i).toInt() < 85) bri = 0;
+        else if (server.arg(i).toInt() < 170) bri = 1;
+        else bri = 2;
+      }
+    }
+    else if (server.argName(i) == "alert" && server.arg(i) == "select") {
+      if (isPoweredOn) {
+        bri = 0;
+      } else {
+        bri = 2;
+      }
+    }
+  }
+
+  json["bri"] = bri;
+
+  int diyhueBri;
+  if (bri == 0) diyhueBri = 0;
+  if (bri == 1) diyhueBri = 128;
+  if (bri == 2) diyhueBri = 255;
+  String power_status = isPoweredOn ? "true" : "false";
+  server.send(200, "text/plain", "OK, bri:" + String(diyhueBri) + ", state:" + power_status);
+}
+
+
 void handleNotFound() {
   if (captivePortal()) { // If caprive portal redirect instead of displaying the error page.
     return;
   }
 
-  String html = htmlHeader();
+  String html = FPSTR(html_header);
   html += "<h1>404 - Page not found</h1>";
   html += "<h2>\"The right man in the wrong place can make all the difference in the world.\"</h2>";
   for (uint8_t i = 0; i < server.args(); i++) {
@@ -172,7 +216,7 @@ void handleNotFound() {
     html += String(F(" ")) + server.argName(i) + F(": ") + server.arg(i) + F("\n");
     html += "</p>";
   }
-  html += htmlFooter();
+  html += FPSTR(html_footer);
 
   server.sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
   server.sendHeader("Pragma", "no-cache");
@@ -180,8 +224,19 @@ void handleNotFound() {
 
   server.send(404, "text/html", html);
 }
+/*
+  // Use only for testing => reveals wifi password!
+  void handleJson() {
+  String html;
+  serializeJson(json, html);
 
+  server.send(200, "text/json", html);
+
+  }
+*/
 void handleRoot() {
+  unsigned long serverProcessingTime = millis();
+
   if (server.args()) {
 
     if (server.hasArg("is_form")) {
@@ -215,6 +270,9 @@ void handleRoot() {
     if (server.hasArg("zero")) {
       json["zero"] = server.arg("zero");
     }
+    if (server.hasArg("on")) {
+      isPoweredOn = server.arg("on").toInt();
+    }
     if (server.hasArg("bri")) {
       json["bri"] = server.arg("bri");
       bri = json["bri"].as<int>();
@@ -239,6 +297,19 @@ void handleRoot() {
     }
     if (server.hasArg("rst_ip")) {
       json["rst_ip"] = server.arg("rst_ip");
+    }
+    if (server.hasArg("bal_enable")) {
+      json["bal_enable"] = server.arg("bal_enable");
+    } else {
+      json["bal_enable"] = 0;
+    }
+    for (int i = 0; i < registersCount; i++) {
+      if (server.hasArg("bal_h_" + String(i))) {
+        json["bal"]["high"][i] = server.arg("bal_h_" + String(i));
+      }
+      if (server.hasArg("bal_l_" + String(i))) {
+        json["bal"]["low"][i] = server.arg("bal_l_" + String(i));
+      }
     }
     if (server.hasArg("ntp")) {
       json["ntp"] = server.arg("ntp");
@@ -282,9 +353,12 @@ void handleRoot() {
 
   }
 
-  String html = htmlHeader();
+
+
+  String html = "";
 
   if (!server.args() || (server.args() && server.hasArg("is_form"))) {
+    html += FPSTR(html_header);
     html += "<form method=\"post\" action=\"/\">";
     html += "<h1>FLORA - Wi-Fi VFD Clock</h1> <p></p>";
 
@@ -313,78 +387,109 @@ void handleRoot() {
     */
     html += "\"> </div>";
 
-    html += "<h2>Clock settings</h2><p>Some visual settings and tweaks.</p>";
+    html += "<h2>Basic settings</h2><p>Time format and other useful settings and tweaks.</p>";
 
     html += "<div class=\"row\"><label for=\"t_format\">Time format:</label>";
     html += "<select id=\"t_format\" name=\"t_format\">";
-    unsigned int t_format = json["t_format"].as<unsigned int>();
-    html += "<option value=\"0\"";
-    if (t_format == 0) html += " selected";
-    html += ">12-hour</option>";
     html += "<option value=\"1\"";
-    if (t_format == 1) html += " selected";
+    if (json["t_format"].as<int>() == 1) html += " selected";
     html += ">24-hour</option>";
+    html += "<option value=\"0\"";
+    if (!json["t_format"].isNull() && json["t_format"].as<int>() == 0) html += " selected";
+    html += ">12-hour</option>";
     html += "</select></div>";
 
     html += "<div class=\"row\"><label for=\"zero\">Leading zero:</label>";
     html += "<select id=\"zero\" name=\"zero\">";
-    unsigned int zero = json["zero"].as<unsigned int>();
-    html += "<option value=\"0\"";
-    if (zero == 0) html += " selected";
-    html += ">Hide</option>";
     html += "<option value=\"1\"";
-    if (zero == 1) html += " selected";
+    if (json["zero"].as<int>() == 1) html += " selected";
     html += ">Show</option>";
+    html += "<option value=\"0\"";
+    if (!json["zero"].isNull() && json["zero"].as<int>() == 0) html += " selected";
+    html += ">Hide</option>";
     html += "</select></div>";
+
+    html += "<div class=\"row\"><label for=\"rst_cycle\">Cycle through digits after every reset:</label>";
+    html += "<select id=\"rst_cycle\" name=\"rst_cycle\">";
+    html += "<option value=\"0\"";
+    if (json["rst_cycle"].as<int>() == 0) html += " selected";
+    html += ">No</option>";
+    html += "<option value=\"1\"";
+    if (json["rst_cycle"].as<int>() == 1) html += " selected";
+    html += ">Yes (good for testing all digits)</option>";
+    html += "</select></div>";
+
+    html += "<div class=\"row\"><label for=\"rst_ip\">Show IP address after reset (last 3 digits):</label>";
+    html += "<select id=\"rst_ip\" name=\"rst_ip\">";
+    int rst_ip = json["rst_ip"].as<int>();
+    html += "<option value=\"1\"";
+    if (rst_ip == 1) html += " selected";
+    html += ">Yes</option>";
+    html += "<option value=\"0\"";
+    if (!json["rst_ip"].isNull() && rst_ip == 0) html += " selected";
+    html += ">No</option>";
+    html += "</select></div>";
+
+    html += "<div class=\"row\"><label for=\"ntp\">NTP server address or IP</label>";
+    html += "<input type=\"text\" id=\"ntp\" name=\"ntp\" placeholder=\"";
+    html += ntpServerName;
+    html += "\" value=\"";
+    html += json["ntp"].as<const char*>();
+    html += "\">";
+    html += "<p>Leave empty to use ";
+    html += ntpServerName;
+    html += "</p>";
+    html += "</div>";
+
+
+    html += "<h2>Visual settings</h2><p>Brightness, animations and other fun stuff.</p>";
+
 
     html += "<div class=\"row\"><label for=\"bri\">Brightness:</label>";
     html += "<select id=\"bri\" name=\"bri\">";
-    unsigned int bri = json["bri"].as<unsigned int>();
-    html += "<option value=\"0\"";
-    if (bri == 0) html += " selected";
-    html += ">Low</option>";
-    html += "<option value=\"1\"";
-    if (bri == 1) html += " selected";
-    html += ">Medium</option>";
     html += "<option value=\"2\"";
-    if (bri == 2) html += " selected";
+    if (json["bri"].as<int>() == 2) html += " selected";
     html += ">High</option>";
+    html += "<option value=\"1\"";
+    if (json["bri"].as<int>() == 1) html += " selected";
+    html += ">Medium</option>";
+    html += "<option value=\"0\"";
+    if (!json["bri"].isNull() && json["bri"].as<int>() == 0) html += " selected";
+    html += ">Low</option>";
     html += "</select></div>";
 
     html += "<div class=\"row\"><label for=\"colon\">Colon:</label>";
     html += "<select id=\"colon\" name=\"colon\">";
-    unsigned int colon = json["colon"].as<unsigned int>();
+    html += "<option value=\"2\"";
+    if (json["colon"].as<int>() == 2) html += " selected";
+    html += ">ON/OFF each second</option>";
     html += "<option value=\"0\"";
-    if (colon == 0) html += " selected";
+    if (!json["colon"].isNull() && json["colon"].as<int>() == 0) html += " selected";
     html += ">Off</option>";
     html += "<option value=\"1\"";
-    if (colon == 1) html += " selected";
+    if (json["colon"].as<int>() == 1) html += " selected";
     html += ">Always ON</option>";
 #if !defined(CLOCK_VERSION_IV22)
     // gradient doesn't make sense on IV-22 colon
     html += "<option value=\"3\"";
-    if (colon == 3) html += " selected";
+    if (json["colon"].as<int>() == 3) html += " selected";
     html += ">Always ON (gradient)</option>";
 #endif
-    html += "<option value=\"2\"";
-    if (colon == 2) html += " selected";
-    html += ">ON/OFF each second</option>";
     html += "</select></div>";
 
     html += "<div class=\"row\"><label for=\"fade\">Crossfade animation:</label>";
     html += "<select id=\"fade\" name=\"fade\">";
-    unsigned int fade = json["fade"].as<unsigned int>();
     html += "<option value=\"30\"";
-    if (fade == 30) html += " selected";
+    if (json["fade"].as<int>() == 30) html += " selected";
     html += ">Slow</option>";
     html += "<option value=\"20\"";
-    if (fade == 20) html += " selected";
+    if (json["fade"].as<int>() == 20) html += " selected";
     html += ">Medium</option>";
     html += "<option value=\"15\"";
-    if (fade == 15) html += " selected";
+    if (json["fade"].as<int>() == 15) html += " selected";
     html += ">Fast</option>";
     html += "<option value=\"0\"";
-    if (fade == 0) html += " selected";
+    if (!json["fade"].isNull() && json["fade"].as<int>() == 0) html += " selected";
     html += ">Disable</option>";
     html += "</select></div>";
 
@@ -402,44 +507,63 @@ void handleRoot() {
     //html += ">Clock OFF between 22:00-06:00</option>";
     html += "</select></div>";
 
-    html += "<div class=\"row\"><label for=\"rst_cycle\">Cycle through digits after every reset:</label>";
-    html += "<select id=\"rst_cycle\" name=\"rst_cycle\">";
-    unsigned int rst_cycle = json["rst_cycle"].as<unsigned int>();
-    html += "<option value=\"0\"";
-    if (rst_cycle == 0) html += " selected";
-    html += ">No</option>";
-    html += "<option value=\"1\"";
-    if (rst_cycle == 1) html += " selected";
-    html += ">Yes (good for testing all digits)</option>";
-    html += "</select></div>";
+    html += "<div class=\"row\"><label for=\"bal_enable\">";
+    html += "<input type=\"checkbox\" id=\"bal_enable\" name=\"bal_enable\" value=\"1\" onClick=\"JavaScript:toggleVisibility(this,'bal_wrapper');\"";
+    if (json["bal_enable"].as<int>() == 1) {
+      html += " checked=\"checked\"";
+    }
+    html += ">&nbsp;Enable brightness balancing</label></div>";
 
-    html += "<div class=\"row\"><label for=\"rst_ip\">Show IP address after reset (last 3 digits):</label>";
-    html += "<select id=\"rst_ip\" name=\"rst_ip\">";
-    unsigned int rst_ip = json["rst_ip"].as<unsigned int>();
-    html += "<option value=\"0\"";
-    if (rst_ip == 0) html += " selected";
-    html += ">No</option>";
-    html += "<option value=\"1\"";
-    if (rst_ip == 1) html += " selected";
-    html += ">Yes</option>";
-    html += "</select></div>";
+    html += "<div id=\"bal_wrapper\">"; // Toggle wrapper start
+    html += "<p>When buying used tubes, some are more severely burned out than others. Use options below to lower brightness of the good tubes to match the burned-out ones.</p>";
 
-    html += "<div class=\"row\"><label for=\"ntp\">NTP server address or IP</label>";
-    html += "<input type=\"text\" id=\"ntp\" name=\"ntp\" placeholder=\"";
-    html += ntpServerName;
-    html += "\" value=\"";
-    html += json["ntp"].as<const char*>();
-    html += "\">";
-    html += "<p>Leave empty to use ";
-    html += ntpServerName;
-    html += "</p>";
-    html += "</div>";
+
+    html += "<h3>High brightness balance:</h3>";
+    html += "<div class=\"flexrow\">"; // FLEX ROW START
+
+    for (int i = 0; i < registersCount; i++) {
+      html += "<div class=\"col\">"; // COLUMN START
+      html += "<div class=\"row\"><label for=\"bal_h_" + String(i) + "\">Digit " + String(i + 1) + ":</label>";
+      html += "<select id=\"bal_h_" + String(i) + "\" name=\"bal_h_" + String(i) + "\">";
+
+      for (int ii = pwmResolution; ii > 0; ii -= dimmingSteps) {
+        html += "<option value=\"" + String(ii) + "\"";
+        if ((!json["bal"]["high"][i].isNull() && json["bal"]["high"][i].as<int>() == ii) || (json["bal"]["low"][i].isNull() && ii == pwmResolution)) html += " selected";
+        html += ">" + String(ii) + "</option>";
+      }
+
+      html += "</select></div>";
+      html += "</div>"; // COLUMN END
+    }
+    html += "</div>"; // FLEX ROW END
+
+    html += "<h3>Low brightness balance:</h3>";
+    html += "<div class=\"flexrow\">"; // FLEX ROW START
+    for (int i = 0; i < registersCount; i++) {
+      html += "<div class=\"col\">"; // COLUMN START
+      html += "<div class=\"row\"><label for=\"bal_l_" + String(i) + "\">Digit " + String(i + 1) + ":</label>";
+      html += "<select id=\"bal_l_" + String(i) + "\" name=\"bal_l_" + String(i) + "\">";
+
+      for (int ii = pwmResolution; ii > 0; ii -= dimmingSteps) {
+        html += "<option value=\"" + String(ii) + "\"";
+        if ((!json["bal"]["low"][i].isNull() && json["bal"]["low"][i].as<int>() == ii) || (json["bal"]["low"][i].isNull() && ii == dimmingSteps)) html += " selected";
+        html += ">" + String(ii) + "</option>";
+      }
+
+      html += "</select></div>";
+      html += "</div>"; // COLUMN END
+    }
+    html += "</div>"; // FLEX ROW END
+
+    html += "</div>"; // Toggle wrapper end
+
+
 
     html += "<h2>Timezone settings</h2>";
     html += "<p>Set your timezone and optionally also daylight saving.</p>";
 
 
-    html += "<div class=\"row\"><label for=\"std_offset\">UTC offset (in minutes, -660 = -11h, 660 = +11h):</label>";
+    html += "<div class=\"row\"><label for=\"std_offset\">Standard time UTC offset (in minutes, -660 = -11h, 660 = +11h):</label>";
     html += "<input type=\"number\" id=\"std_offset\" name=\"std_offset\" min=\"-660\" max=\"660\" value=\"";
     html += json["std_offset"].as<const char*>();
     html += "\"></div>";
@@ -449,12 +573,8 @@ void handleRoot() {
     if (json["dst_enable"].as<int>() == 1) {
       html += " checked=\"checked\"";
     }
-    html += "> Enable Daylight Saving (summer time)</label></div>";
-    html += "<p>When enabled, additional fields will pop up for you to set daylight saving time. <a href=\"https://www.timeanddate.com/time/zone/uk/london\" target=\"_blank\">You can search for your timezone here</a></p>";
-    //dst_wrapper
-
-
-
+    html += ">&nbsp;Enable Daylight Saving (summer time)</label></div>";
+    html += "<p>When enabled, additional fields will pop up for you to set daylight saving time. <a href=\"https://www.timeanddate.com/time/map/\" target=\"_blank\">You can search for your timezone here</a></p>";
 
 
 
@@ -689,7 +809,10 @@ void handleRoot() {
     html += "<input type=\"hidden\" name=\"is_form\" value=\"1\">";
 
     html += "<div class=\"row\"><button type=\"submit\">Save and reboot</button></div></form>";
-    html += htmlFooter();
+    html += FPSTR(html_footer);
+
+    html.replace("{{fw_name}}", FW_NAME);
+    html.replace("{{fw_version}}", FW_VERSION);
 
     server.send(200, "text/html", html);
 
@@ -697,8 +820,12 @@ void handleRoot() {
     for (uint8_t i = 0; i < server.args(); i++) {
       html += " " + server.argName(i) + ": " + server.arg(i) + "\n";
     }
-    server.send(200, "text/html", html);
+    server.send(200, "text/plain", html);
   }
+
+  Serial.print("[SERV] Serving HTML took: ");
+  Serial.print(millis() - serverProcessingTime);
+  Serial.println(" ms");
 
   if (server.args() && server.hasArg("is_form")) {
     delay(1000);

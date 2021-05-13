@@ -34,7 +34,7 @@
 
 #define AP_NAME "FLORA_"
 #define FW_NAME "FLORA"
-#define FW_VERSION "4.2"
+#define FW_VERSION "4.3"
 #define CONFIG_TIMEOUT 300000 // 300000 = 5 minutes
 
 // ONLY CHANGE DEFINES BELOW IF YOU KNOW WHAT YOU'RE DOING!
@@ -57,7 +57,7 @@ const char* update_username = "flora";
 const char* update_password = "flora";
 const char* ntpServerName = "pool.ntp.org";
 
-const int dotsAnimationSteps = 3000; // dotsAnimationSteps * TIMER_INTERVAL_uS = one animation cycle time in microseconds
+const int dotsAnimationSteps = 2000; // dotsAnimationSteps * TIMER_INTERVAL_uS = one animation cycle time in microseconds
 const uint8_t PixelCount = 12; // Addressable LED count
 RgbColor colorConfigMode = RgbColor(130, 0, 130);
 RgbColor colorConfigSave = RgbColor(0, 0, 130);
@@ -164,17 +164,12 @@ volatile uint8_t targetBrightness[registersCount][8];
 volatile uint8_t shiftedDutyState[registersCount];
 const uint8_t pwmResolution = 48; // should be in the multiples of dimmingSteps to enable smooth crossfade
 const uint8_t dimmingSteps = 8;
-const uint8_t bri_vals[3] = { // These need to be multiples of 8 to enable crossfade! HIGH must be less or equal as pwmResolution.
-  8, // LOW
-  24, // MEDIUM
-  48, // HIGH
-};
 
 // MAX BRIGHTNESS PER DIGIT
 // These need to be multiples of 8 to enable crossfade! Must be less or equal as pwmResolution.
 // Set maximum brightness for reach digit separately. This can be used to normalize brightness between new and burned out tubes.
 // Last two values are ignored in 4-digit clock
-const uint8_t bri_vals_separate[3][6] = {
+uint8_t bri_vals_separate[3][6] = {
   {8, 8, 8, 8, 8, 8}, // Low brightness
   {24, 24, 24, 24, 24, 24}, // Medium brightness
   {48, 48, 48, 48, 48, 48}, // High brightness
@@ -182,6 +177,7 @@ const uint8_t bri_vals_separate[3][6] = {
 
 
 // Better left alone global vars
+volatile bool isPoweredOn = true;
 unsigned long configStartMillis, prevDisplayMillis;
 volatile int activeDot;
 uint8_t deviceMode = NORMAL_MODE;
@@ -374,6 +370,6 @@ void loop() {
 
   //MDNS.update();
   server.handleClient();
-  delay(10); // Keeps the ESP cold!
+  delay(1); // Keeps the ESP cold!
 
 }

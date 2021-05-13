@@ -6,6 +6,9 @@ void initStrip() {
 }
 
 void strip_show() {
+  if (!isPoweredOn) {
+    strip.ClearTo(RgbColor(0, 0, 0));
+  }
   if (!strip.IsDirty()) return;
   disableScreen();
   strip.Show();
@@ -46,7 +49,7 @@ void updateColonColor(RgbColor color) {
     colorMed = RgbColor::LinearBlend(color, RgbColor(0, 0, 0), 0.5);
     colorLow = RgbColor::LinearBlend(color, RgbColor(0, 0, 0), 0.7);
   }
-  
+
   // Gamma correction => linearize brightness
   colorHigh = colorGamma.Correct(colorHigh);
   colorMed = colorGamma.Correct(colorMed);
