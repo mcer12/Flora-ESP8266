@@ -299,7 +299,7 @@ void setup() {
     startServer();
   }
 
-  colonColor = colonColorDefault[bri];
+  initRgbColon();
   //initScreen();
 
   if (json["rst_cycle"].as<unsigned int>() == 1) {

@@ -24,12 +24,24 @@ void resetColonColor() {
   colonColor = colonColorDefault[bri];
 }
 
-void startBlinking(int blinkSpeed, RgbColor color) {
-  colonColor = color;
-  colonTicker.attach_ms(blinkSpeed, handleBlinking);
+void initRgbColon() {
+  if (json["rgb"]["en"].as<int>() == 1) {
+    colonColorDefault[0] = RgbColor(json["rgb"]["low"][0], json["rgb"]["low"][1], json["rgb"]["low"][2]); // LOW
+    colonColorDefault[1] = RgbColor::LinearBlend(RgbColor(json["rgb"]["low"][0], json["rgb"]["low"][1], json["rgb"]["low"][2]), RgbColor(json["rgb"]["high"][0], json["rgb"]["high"][1], json["rgb"]["high"][2]), 0.5);; // MEDIUM
+    colonColorDefault[2] = RgbColor(json["rgb"]["high"][0], json["rgb"]["high"][1], json["rgb"]["high"][2]); // HIGH
+  }
+  resetColonColor();
 }
 
-void handleBlinking() {
+
+
+/*
+  void startBlinking(int blinkSpeed, RgbColor color) {
+  colonColor = color;
+  colonTicker.attach_ms(blinkSpeed, handleBlinking);
+  }
+
+  void handleBlinking() {
   if (toggleSeconds) {
     strip.ClearTo(colonColor);
   } else {
@@ -38,8 +50,8 @@ void handleBlinking() {
   strip_show();
 
   toggleSeconds = !toggleSeconds;
-}
-
+  }
+*/
 void updateColonColor(RgbColor color) {
   RgbColor colorHigh = color;
   RgbColor colorMed = color;
