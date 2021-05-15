@@ -274,5 +274,4 @@ void toggleNightMode() {
   } else {
     bri = json["bri"].as<int>();
   }
-  setupPhaseShift();
 }

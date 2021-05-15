@@ -102,17 +102,18 @@ void handleColon() {
   // 0 = off, 1 = always on, 2 = ON/OFF each second, 3 = always on with gradient
   if (json["colon"].as<int>() == 0) {
     strip.ClearTo(RgbColor(0, 0, 0));
+    return;
   } else if (json["colon"].as<int>() == 1 || json["colon"].as<int>() == 3) {
     updateColonColor(colonColor);
     return;
   } else if (json["colon"].as<int>() == 2) {
-    toggleSeconds = !toggleSeconds;
     if (toggleSeconds) {
       SetupAnimations(colonColor, RgbColor(0, 0, 0), 150);
     }
     else {
       SetupAnimations(RgbColor(0, 0, 0), colonColor, 150);
     }
+    toggleSeconds = !toggleSeconds;
     return;
   }
 }

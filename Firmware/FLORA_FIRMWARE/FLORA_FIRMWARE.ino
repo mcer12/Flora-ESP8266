@@ -29,7 +29,7 @@
 #define CLOCK_VERSION_IV22
 
 #if !defined(CLOCK_VERSION_IV6) && !defined(CLOCK_VERSION_IV12) && !defined(CLOCK_VERSION_IV22)
-#error "You have to pick a clock version! Line 25"
+#error "You have to select a clock version! Line 25"
 #endif
 
 #define AP_NAME "FLORA_"
@@ -281,6 +281,7 @@ void setup() {
     for (int i = 0; i < 1000; i++) {
       if (WiFi.status() != WL_CONNECTED) {
         if (i > 200) { // 20s timeout
+          enableDotsAnimation = false;
           deviceMode = CONFIG_MODE;
           updateColonColor(red[bri]);
           strip_show();
@@ -351,14 +352,7 @@ void loop() {
   if (millis() - prevDisplayMillis >= 1000) { //update the display only if time has changed
     prevDisplayMillis = millis();
     toggleNightMode();
-    /*
-        if (
-          (json["cathode"].as<int>() == 1 && (hour() >= 2 && hour() <= 6) && minute() < 10) ||
-          (json["cathode"].as<int>() == 2 && (((hour() >= 2 && hour() <= 6) && minute() < 10) || minute() < 1))
-        ) {
-          //healingCycle(); // do healing loop if the time is right :)
-        } else {
-    */
+
     if (timeUpdateStatus) {
       if (timeUpdateStatus == UPDATE_SUCCESS) {
         setTemporaryColonColor(5, green[bri]);
@@ -375,9 +369,6 @@ void loop() {
 
     handleColon();
     showTime();
-    /*
-        }
-    */
   }
 
   animations.UpdateAnimations();

@@ -8,25 +8,25 @@ static const char html_header[] PROGMEM =
   "body,*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,\"Helvetica Neue\",Arial,sans-serif;}"
   "a{color:inherit;text-decoration:underline;}"
   ".wrapper{padding:30px 0;}"
-  ".container{margin:auto;padding:40px;max-width:600px;color:#fff;background:#000;box-shadow:0 0 100px rgba(67,255,229,.5);border: 3px solid #43ffe5;border-radius:20px;}"
+  ".container{margin:auto;padding:40px;max-width:600px;color:#fff;background:#000;box-shadow:0 0 100px rgb(133 206 196 / 30%); border: 3px solid #64b7ac;border-radius:20px;}"
   ".row{margin-bottom:15px;}"
   ".flexrow{display:flex;justify-items:stretch;align-items:flex-start;flex-wrap:wrap;margin-left:-10px;}"
   ".col{flex: 1;padding-left:10px;}h1{margin:0 0 10px 0;font-family:Arial,sans-serif;font-weight:300;font-size:2rem;}"
   "h1 + p{margin-bottom:30px;}"
-  "h2{color:#43ffe5;margin:30px 0 0 0;font-family:Arial,sans-serif;font-weight:300;font-size:1.5rem;}"
+  "h2{color:#60dccb;margin:30px 0 0 0;font-family:Arial,sans-serif;font-weight:300;font-size:1.5rem;}"
   "h3{font-family:Arial,sans-serif;font-weight:300;font-size:1.2rem;margin: 25px 0 10px 0;}"
   "div+h3,#rgb_wrapper h3{margin-top:10px;}"
   "p{font-size:.85rem;margin:0 0 20px 0;color:rgba(255,255,255,.7);}"
   "#rgb_wrapper .flexrow p{font-size: 1rem;margin: 10px 0 8px 0;color: #fff;}"
   "label{display:block;width:100%;margin-bottom:5px;}"
   "label+p{margin-bottom:5px;}"
-  "input[type=\"text\"],input[type=\"number\"],input[type=\"password\"],select{display:inline-block;width:100%;height:42px;line-height:38px;padding:0 20px;color:#fff;border:2px solid #666;background:none;border-radius:5px;transition:.15s;box-shadow:none;outline:none;}"
+  "input[type=\"text\"],input[type=\"number\"],input[type=\"password\"],select{display:inline-block;width:100%;height:42px;line-height:38px;padding:0 15px;color:#fff;border:2px solid #666;background:none;border-radius:5px;transition:.15s;box-shadow:none;outline:none;}"
   "input[type=\"text\"]:hover,input[type=\"number\"]:hover,input[type=\"password\"]:hover,select:hover{border-color:#69b6ac;}"
   "input[type=\"text\"]:focus,input[type=\"password\"]:focus,select:focus{border-color:#a5fff3;}"
   "option{color:#000;}"
-  "button{display:block;width:100%;padding: 15px 20px; margin-top: 40px;font-size:1rem;font-weight:700;text-transform:uppercase;background:#43ffe5;border:0;border-radius:5px;cursor:pointer;transition:.15s;outline:none;}"
+  "button{display:block;width:100%;padding: 15px 20px; margin-top: 40px;font-size:1rem;font-weight:700;text-transform:uppercase;background:#60dccb;border:0;border-radius:5px;cursor:pointer;transition:.15s;outline:none;}"
   "button:hover{background:#a5fff3;}"
-  ".github{padding:15px;text-align:center;}.github a{color:#43ffe5;transition:.15s;}"
+  ".github{padding:15px;text-align:center;}.github a{color:#60dccb;transition:.15s;}"
   ".github a:hover{color:#a5fff3;}"
   ".github p{margin:0;}"
   ".mac{display:inline-block;margin-top:8px;padding:2px 5px;color:#fff;background:#444;border-radius:3px;}"
@@ -87,7 +87,9 @@ static const char html_footer[] PROGMEM =
   "document.getElementById(\"rgb_v_low\").value = color.value;"
   "httpGetAsync('/?rgb_en=1&rgb_v_low='+color.value, function(callback){console.log(callback)});"
   "});"
-  "window.addEventListener(\"resize\", function(){ if(window.innerWidth < 500){ colorPickerRgb.resize(270); colorPickerHigh.resize(270); colorPickerMed.resize(270); colorPickerLow.resize(270); } else{ colorPickerRgb.resize(400); colorPickerHigh.resize(400); colorPickerMed.resize(400); colorPickerLow.resize(400); } });"
+  "function resizeColorpicker(){if(window.innerWidth < 500){ colorPickerRgb.resize(270); colorPickerHigh.resize(270); colorPickerMed.resize(270); colorPickerLow.resize(270); } else{ colorPickerRgb.resize(400); colorPickerHigh.resize(400); colorPickerMed.resize(400); colorPickerLow.resize(400); }}"
+  "resizeColorpicker();"
+  "window.addEventListener(\"resize\", function(){ resizeColorpicker(); });"
   "function toggleVisibility(eventsender){var myNewState = \"none\";if (eventsender.checked === true){myNewState = \"block\";}document.getElementById(eventsender.dataset.target).style.display = myNewState;}"
   "var toggles = document.getElementsByClassName(\"visibility-toggle\");"
   "[].forEach.call(toggles, function (el) {toggleVisibility(el); el.addEventListener(\"click\", function(){toggleVisibility(this);}); });"
@@ -343,7 +345,7 @@ void handleRoot() {
   if (server.args()) {
 
     if (server.hasArg("is_form")) {
-      updateColonColor(purple[bri]);
+      updateColonColor(blue[bri]);
       strip_show();
     }
 
