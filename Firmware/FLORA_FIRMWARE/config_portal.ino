@@ -2,7 +2,42 @@
 static const char html_header[] PROGMEM =
   "<!DOCTYPE html><html><head><meta charset=\"UTF-8\">"
   "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=0\">"
-  "<title>FLORA - Wi-Fi VFD Clock</title><style>html,body{margin:0;padding:0;font-size:16px;background:#333;}body,*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,\"Helvetica Neue\",Arial,sans-serif;}a{color:inherit;text-decoration:underline;}.wrapper{padding:30px 0;}.container{margin:auto;padding:40px;max-width:600px;color:#fff;background:#000;box-shadow:0 0 100px rgba(0,0,0,.5);border: 3px solid #43ffe5;border-radius:35px;}.row{margin-bottom:15px;}.flexrow{display:flex;justify-items:stretch;align-items:flex-start;flex-wrap:wrap;margin-left:-10px;}.col{flex: 1;padding-left:10px;}h1{margin:0 0 10px 0;font-family:Arial,sans-serif;font-weight:300;font-size:2rem;}h1 + p{margin-bottom:30px;}h2{color:#43ffe5;margin:30px 0 0 0;font-family:Arial,sans-serif;font-weight:300;font-size:1.5rem;}h3{font-family:Arial,sans-serif;font-weight:300;font-size:1.2rem;margin: 25px 0 10px 0;}div+h3,#rgb_wrapper h3{margin-top:10px;}p{font-size:.85rem;margin:0 0 20px 0;color:rgba(255,255,255,.7);}label{display:block;width:100%;margin-bottom:5px;}label+p{margin-bottom:5px;}input[type=\"text\"],input[type=\"number\"],input[type=\"password\"],select{display:inline-block;width:100%;height:42px;line-height:38px;padding:0 20px;color:#fff;border:2px solid #666;background:none;border-radius:5px;transition:.15s;box-shadow:none;outline:none;}input[type=\"text\"]:hover,input[type=\"number\"]:hover,input[type=\"password\"]:hover,select:hover{border-color:#69b6ac;}input[type=\"text\"]:focus,input[type=\"password\"]:focus,select:focus{border-color:#a5fff3;}option{color:#000;}button{display:block;width:100%;padding:10px 20px;font-size:1rem;font-weight:700;text-transform:uppercase;background:#43ffe5;border:0;border-radius:5px;cursor:pointer;transition:.15s;outline:none;}button:hover{background:#a5fff3;}.github{padding:15px;text-align:center;}.github a{color:#43ffe5;transition:.15s;}.github a:hover{color:#a5fff3;}.github p{margin:0;}.mac{display:inline-block;margin-top:8px;padding:2px 5px;color:#fff;background:#444;border-radius:3px;}</style><style media=\"all and (max-width:620px)\">.wrapper{padding:0;}.container{padding:25px 15px;border:0;border-radius:0;}.col{flex: auto;width:50%;}.col-xs-full{flex:1;width:100%;}</style></head><body>";
+  "<title>FLORA - Wi-Fi VFD Clock</title>"
+  "<style>"
+  "html,body{margin:0;padding:0;font-size:16px;background:#062b26;}"
+  "body,*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,\"Helvetica Neue\",Arial,sans-serif;}"
+  "a{color:inherit;text-decoration:underline;}"
+  ".wrapper{padding:30px 0;}"
+  ".container{margin:auto;padding:40px;max-width:600px;color:#fff;background:#000;box-shadow:0 0 100px rgba(67,255,229,.5);border: 3px solid #43ffe5;border-radius:20px;}"
+  ".row{margin-bottom:15px;}"
+  ".flexrow{display:flex;justify-items:stretch;align-items:flex-start;flex-wrap:wrap;margin-left:-10px;}"
+  ".col{flex: 1;padding-left:10px;}h1{margin:0 0 10px 0;font-family:Arial,sans-serif;font-weight:300;font-size:2rem;}"
+  "h1 + p{margin-bottom:30px;}"
+  "h2{color:#43ffe5;margin:30px 0 0 0;font-family:Arial,sans-serif;font-weight:300;font-size:1.5rem;}"
+  "h3{font-family:Arial,sans-serif;font-weight:300;font-size:1.2rem;margin: 25px 0 10px 0;}"
+  "div+h3,#rgb_wrapper h3{margin-top:10px;}"
+  "p{font-size:.85rem;margin:0 0 20px 0;color:rgba(255,255,255,.7);}"
+  "#rgb_wrapper .flexrow p{font-size: 1rem;margin: 10px 0 8px 0;color: #fff;}"
+  "label{display:block;width:100%;margin-bottom:5px;}"
+  "label+p{margin-bottom:5px;}"
+  "input[type=\"text\"],input[type=\"number\"],input[type=\"password\"],select{display:inline-block;width:100%;height:42px;line-height:38px;padding:0 20px;color:#fff;border:2px solid #666;background:none;border-radius:5px;transition:.15s;box-shadow:none;outline:none;}"
+  "input[type=\"text\"]:hover,input[type=\"number\"]:hover,input[type=\"password\"]:hover,select:hover{border-color:#69b6ac;}"
+  "input[type=\"text\"]:focus,input[type=\"password\"]:focus,select:focus{border-color:#a5fff3;}"
+  "option{color:#000;}"
+  "button{display:block;width:100%;padding: 15px 20px; margin-top: 40px;font-size:1rem;font-weight:700;text-transform:uppercase;background:#43ffe5;border:0;border-radius:5px;cursor:pointer;transition:.15s;outline:none;}"
+  "button:hover{background:#a5fff3;}"
+  ".github{padding:15px;text-align:center;}.github a{color:#43ffe5;transition:.15s;}"
+  ".github a:hover{color:#a5fff3;}"
+  ".github p{margin:0;}"
+  ".mac{display:inline-block;margin-top:8px;padding:2px 5px;color:#fff;background:#444;border-radius:3px;}"
+  "</style>"
+  "<style media=\"all and (max-width:620px)\">"
+  ".wrapper{padding:0;}"
+  ".container{padding:25px 15px;border:0;border-radius:0;}"
+  ".col{flex: auto;width:50%;}"
+  ".col-xs-full{flex:1;width:100%;}"
+  "</style>"
+  "</head><body>";
 
 static const char html_wrapper_start[] PROGMEM =
   "<div class=\"wrapper\">"
@@ -25,28 +60,41 @@ static const char html_footer[] PROGMEM =
   "xmlHttp.open(\"GET\", theUrl, true);"
   "xmlHttp.send(null);"
   "};"
-  "var colorPickerHigh = new iro.ColorPicker('#picker_high', { width: 240,wheelAngle: 270,wheelDirection: 'clockwise',borderWidth:1,color: \"{{rgb_high}}\"});"
-  "var colorPickerLow = new iro.ColorPicker('#picker_low', { width: 240,wheelAngle: 270,wheelDirection: 'clockwise',borderWidth:1,color: \"{{rgb_low}}\"});"
+  "var colorPickerRgb = new iro.ColorPicker('#picker_rgb', { layout: [ { component: iro.ui.Wheel, options: {wheelLightness: false} }], width: 400,wheelAngle: 270,wheelDirection: 'clockwise',borderWidth:1,color: {{rgb}}});"
+  "var colorPickerHigh = new iro.ColorPicker('#picker_high', { layout: [ { component: iro.ui.Slider }], width: 400,borderWidth:1,color: {{rgb_high}}});"
+  "var colorPickerMed = new iro.ColorPicker('#picker_med', { layout: [ { component: iro.ui.Slider }], width: 400,borderWidth:1,color: {{rgb_med}}});"
+  "var colorPickerLow = new iro.ColorPicker('#picker_low', { layout: [ { component: iro.ui.Slider }], width: 400,borderWidth:1,color: {{rgb_low}}});"
+  "colorPickerRgb.on('color:change', function(color) {"
+  "colorPickerHigh.color.hue = colorPickerMed.color.hue = colorPickerLow.color.hue = color.hue;"
+  "colorPickerHigh.color.saturation = colorPickerMed.color.saturation = colorPickerLow.color.saturation = color.saturation;"
+  "});"
+  "colorPickerRgb.on('input:end', function(color) {"
+  "document.getElementById(\"rgb_h\").value = colorPickerRgb.color.hue;"
+  "document.getElementById(\"rgb_s\").value = colorPickerRgb.color.saturation;"
+  "colorPickerHigh.color.hue = colorPickerMed.color.hue = colorPickerLow.color.hue = color.hue;"
+  "colorPickerHigh.color.saturation = colorPickerMed.color.saturation = colorPickerLow.color.saturation = color.saturation;"
+  "httpGetAsync('/?rgb_en=1&rgb_h='+color.hue+'&rgb_s='+color.saturation, function(callback){console.log(callback)});"
+  "});"
   "colorPickerHigh.on('input:end', function(color) {"
-  "var rgbHigh = colorPickerHigh.color.rgb;"
-  "document.getElementById(\"rgb_h_r\").value = rgbHigh.r;"
-  "document.getElementById(\"rgb_h_g\").value = rgbHigh.g;"
-  "document.getElementById(\"rgb_h_b\").value = rgbHigh.b;"
-  "httpGetAsync('/?rgb_en=1&rgb_h_r='+rgbHigh.r+'&rgb_h_g='+rgbHigh.g+'&rgb_h_b='+rgbHigh.b, function(callback){console.log(callback)});"
+  "document.getElementById(\"rgb_v_high\").value = color.value;"
+  "httpGetAsync('/?rgb_en=1&rgb_v_high='+color.value, function(callback){console.log(callback)});"
+  "});"
+  "colorPickerMed.on('input:end', function(color) {"
+  "document.getElementById(\"rgb_v_med\").value = color.value;"
+  "httpGetAsync('/?rgb_en=1&rgb_v_med='+color.value, function(callback){console.log(callback)});"
   "});"
   "colorPickerLow.on('input:end', function(color) {"
-  "var rgbLow = colorPickerLow.color.rgb;"
-  "document.getElementById(\"rgb_l_r\").value = rgbLow.r;"
-  "document.getElementById(\"rgb_l_g\").value = rgbLow.g;"
-  "document.getElementById(\"rgb_l_b\").value = rgbLow.b;"
-  "httpGetAsync('/?rgb_en=1&rgb_l_r='+rgbLow.r+'&rgb_l_g='+rgbLow.g+'&rgb_l_b='+rgbLow.b, function(callback){console.log(callback)});"
+  "document.getElementById(\"rgb_v_low\").value = color.value;"
+  "httpGetAsync('/?rgb_en=1&rgb_v_low='+color.value, function(callback){console.log(callback)});"
   "});"
+  "window.addEventListener(\"resize\", function(){ if(window.innerWidth < 500){ colorPickerRgb.resize(270); colorPickerHigh.resize(270); colorPickerMed.resize(270); colorPickerLow.resize(270); } else{ colorPickerRgb.resize(400); colorPickerHigh.resize(400); colorPickerMed.resize(400); colorPickerLow.resize(400); } });"
   "function toggleVisibility(eventsender){var myNewState = \"none\";if (eventsender.checked === true){myNewState = \"block\";}document.getElementById(eventsender.dataset.target).style.display = myNewState;}"
   "var toggles = document.getElementsByClassName(\"visibility-toggle\");"
   "[].forEach.call(toggles, function (el) {toggleVisibility(el); el.addEventListener(\"click\", function(){toggleVisibility(this);}); });"
   "</script>"
   "</body> </html>";
 
+// iro.js v5.5.1
 static const char iro[] PROGMEM =
   "<script>"
   "!function(t,n){\"object\"==typeof exports&&\"undefined\"!=typeof module?module.exports=n():\"function\"==typeof define&&define.amd?define(n):(t=t||self).iro=n()}(this,function(){\"use strict\";var m,s,n,i,o,x={},j=[],r=/acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|^--/i;function M(t,n){for(var i in n)t[i]=n[i];return t}function y(t){var n=t.parentNode;n&&n.removeChild(t)}function h(t,n,i){var r,e,u,o,l=arguments;if(n=M({},n),3<arguments.length)for(i=[i],r=3;r<arguments.length;r++)i.push(l[r]);if(null!=i&&(n.children=i),null!=t&&null!=t.defaultProps)for(e in t.defaultProps)void 0===n[e]&&(n[e]=t.defaultProps[e]);return o=n.key,null!=(u=n.ref)&&delete n.ref,null!=o&&delete n.key,c(t,n,o,u)}function c(t,n,i,r){var e={type:t,props:n,key:i,ref:r,n:null,i:null,e:0,o:null,l:null,c:null,constructor:void 0};return m.vnode&&m.vnode(e),e}function O(t){return t.children}function I(t,n){this.props=t,this.context=n}function w(t,n){if(null==n)return t.i?w(t.i,t.i.n.indexOf(t)+1):null;for(var i;n<t.n.length;n++)if(null!=(i=t.n[n])&&null!=i.o)return i.o;return\"function\"==typeof t.type?w(t):null}function a(t){var n,i;if(null!=(t=t.i)&&null!=t.c){for(t.o=t.c.base=null,n=0;n<t.n.length;n++)if(null!=(i=t.n[n])&&null!=i.o){t.o=t.c.base=i.o;break}return a(t)}}function e(t){(!t.f&&(t.f=!0)&&1===s.push(t)||i!==m.debounceRendering)&&(i=m.debounceRendering,(m.debounceRendering||n)(u))}function u(){var t,n,i,r,e,u,o,l;for(s.sort(function(t,n){return n.d.e-t.d.e});t=s.pop();)t.f&&(r=i=void 0,u=(e=(n=t).d).o,o=n.p,l=n.u,n.u=!1,o&&(i=[],r=k(o,e,M({},e),n.w,void 0!==o.ownerSVGElement,null,i,l,null==u?w(e):u),d(i,e),r!=u&&a(e)))}function S(n,i,t,r,e,u,o,l,s){var c,a,f,h,v,d,g,b=t&&t.n||j,p=b.length;if(l==x&&(l=null!=u?u[0]:p?w(t,0):null),c=0,i.n=A(i.n,function(t){if(null!=t){if(t.i=i,t.e=i.e+1,null===(f=b[c])||f&&t.key==f.key&&t.type===f.type)b[c]=void 0;else for(a=0;a<p;a++){if((f=b[a])&&t.key==f.key&&t.type===f.type){b[a]=void 0;break}f=null}if(h=k(n,t,f=f||x,r,e,u,o,null,l,s),(a=t.ref)&&f.ref!=a&&(g=g||[]).push(a,t.c||h,t),null!=h){if(null==d&&(d=h),null!=t.l)h=t.l,t.l=null;else if(u==f||h!=l||null==h.parentNode){t:if(null==l||l.parentNode!==n)n.appendChild(h);"
@@ -116,7 +164,7 @@ bool startMDNS() {
 void startConfigPortal() {
   configStartMillis = millis(); // start counter
 
-  updateColonColor(colorConfigMode);
+  updateColonColor(purple[bri]);
   strip_show();
 
   String ap_name = AP_NAME + macLastThreeSegments(mac);
@@ -295,7 +343,7 @@ void handleRoot() {
   if (server.args()) {
 
     if (server.hasArg("is_form")) {
-      updateColonColor(colorConfigSave);
+      updateColonColor(purple[bri]);
       strip_show();
     }
 
@@ -342,16 +390,15 @@ void handleRoot() {
     if (server.hasArg("colon")) {
       json["colon"] = server.arg("colon");
     }
-    if (server.hasArg("rgb_h_r")) json["rgb"]["high"][0] = server.arg("rgb_h_r");
-    if (server.hasArg("rgb_h_g")) json["rgb"]["high"][1] = server.arg("rgb_h_g");
-    if (server.hasArg("rgb_h_b")) json["rgb"]["high"][2] = server.arg("rgb_h_b");
-    if (server.hasArg("rgb_l_r")) json["rgb"]["low"][0] = server.arg("rgb_l_r");
-    if (server.hasArg("rgb_l_g")) json["rgb"]["low"][1] = server.arg("rgb_l_g");
-    if (server.hasArg("rgb_l_r")) json["rgb"]["low"][2] = server.arg("rgb_l_b");
     if (server.hasArg("rgb_en")) {
+      if (server.hasArg("rgb_h")) json["rgb"]["h"] = server.arg("rgb_h");
+      if (server.hasArg("rgb_s")) json["rgb"]["s"] = server.arg("rgb_s");
+      if (server.hasArg("rgb_v_low")) json["rgb"]["v"][0] = server.arg("rgb_v_low");
+      if (server.hasArg("rgb_v_med")) json["rgb"]["v"][1] = server.arg("rgb_v_med");
+      if (server.hasArg("rgb_v_high")) json["rgb"]["v"][2] = server.arg("rgb_v_high");
       json["rgb"]["en"] = 1;
       initRgbColon();
-    } else {
+    } else if(server.hasArg("is_form")){
       json["rgb"]["en"] = 0;
     }
     if (server.hasArg("nmode")) {
@@ -368,7 +415,7 @@ void handleRoot() {
     }
     if (server.hasArg("bal_enable")) {
       json["bal_enable"] = server.arg("bal_enable");
-    } else {
+    } else if(server.hasArg("is_form")){
       json["bal_enable"] = 0;
     }
     for (int i = 0; i < registersCount; i++) {
@@ -387,7 +434,7 @@ void handleRoot() {
     }
     if (server.hasArg("dst_enable")) {
       json["dst_enable"] = server.arg("dst_enable");
-    } else {
+    } else if(server.hasArg("is_form")){
       json["dst_enable"] = 0;
     }
     if (server.hasArg("std_week")) {
@@ -652,35 +699,31 @@ void handleRoot() {
 
     html += "<div id=\"rgb_wrapper\">"; // Toggle wrapper start
 
-    html += "<p>This allows you to change default colon color to whatever you want. It's good for adjusting different WS2812 clones to match the VFDs. Btw, you can adjust the color live, without need to reset.</p>";
+    html += "<p>This option is great for adjusting various WS2812 clones to match the VFDs. Brightness values are also used for all the status colors. <br>TIP: You can adjust the color live, no need to reboot :)</p>";
 
     html += "<div class=\"flexrow\">"; // FLEX ROW START
-
     html += "<div class=\"col col-xs-full\" style=\"display:flex;flex-direction:column;align-items:center;justify-content:flex-start;\">"; // COLUMN START
-    html += "<h3 style=\"font-size: 16px;\">High brightness color:</h3>";
-    html += "<div class=\"colorpicker\" id=\"picker_high\">";
-    html += "<div class=\"row\"><input type=\"hidden\" id=\"rgb_h_r\" name=\"rgb_h_r\" value=\"" + String(json["rgb"]["high"][0].as<int>()) + "\"></div>";
-    html += "<div class=\"row\"><input type=\"hidden\" id=\"rgb_h_g\" name=\"rgb_h_g\" value=\"" + String(json["rgb"]["high"][1].as<int>()) + "\"></div>";
-    html += "<div class=\"row\"><input type=\"hidden\" id=\"rgb_h_b\" name=\"rgb_h_b\" value=\"" + String(json["rgb"]["high"][2].as<int>()) + "\"></div>";
-    html += "</div>";
+
+    html += "<h3 style=\"font-size: 16px;\">Colon color:</h3>";
+    html += "<div class=\"colorpicker\" id=\"picker_rgb\"></div>";
+
+    html += "<p style=\"font-size: 16px;\">High brightness:</p>";
+    html += "<div class=\"colorpicker\" id=\"picker_high\"></div>";
+
+    html += "<p style=\"font-size: 16px;\">Medium brightness:</p>";
+    html += "<div class=\"colorpicker\" id=\"picker_med\"></div>";
+
+    html += "<p style=\"font-size: 16px;\">Low brightness:</p>";
+    html += "<div class=\"colorpicker\" id=\"picker_low\"></div>"; // COLUMN END
+
+    html += "<input type=\"hidden\" id=\"rgb_h\" name=\"rgb_h\" value=\"" + String(json["rgb"]["h"].as<int>()) + "\">";
+    html += "<input type=\"hidden\" id=\"rgb_s\" name=\"rgb_s\" value=\"" + String(json["rgb"]["s"].as<int>()) + "\">";
+    html += "<input type=\"hidden\" id=\"rgb_v_high\" name=\"rgb_v_high\" value=\"" + String(json["rgb"]["v"][2].as<int>()) + "\">";
+    html += "<input type=\"hidden\" id=\"rgb_v_med\" name=\"rgb_v_med\" value=\"" + String(json["rgb"]["v"][1].as<int>()) + "\">";
+    html += "<input type=\"hidden\" id=\"rgb_v_low\" name=\"rgb_v_low\" value=\"" + String(json["rgb"]["v"][0].as<int>()) + "\">";
 
     html += "</div>"; // COLUMN END
-
-    html += "<div class=\"col col-xs-full\" style=\"display:flex;flex-direction:column;align-items:center;justify-content:flex-start;\">"; // COLUMN START
-    html += "<h3 style=\"font-size: 16px;\">Low brightness color:</h3>";
-    html += "<div class=\"colorpicker\" id=\"picker_low\">";
-    html += "<div class=\"row\"><input type=\"hidden\" id=\"rgb_l_r\" name=\"rgb_l_r\" value=\"" + String(json["rgb"]["low"][0].as<int>()) + "\"></div>";
-    html += "<div class=\"row\"><input type=\"hidden\" id=\"rgb_l_g\" name=\"rgb_l_g\" value=\"" + String(json["rgb"]["low"][1].as<int>()) + "\"></div>";
-    html += "<div class=\"row\"><input type=\"hidden\" id=\"rgb_l_b\" name=\"rgb_l_b\" value=\"" + String(json["rgb"]["low"][2].as<int>()) + "\"></div>";
-    html += "</div>"; // COLUMN END
-
     html += "</div>"; // FLEX ROW END
-
-
-
-
-
-    html += "</div>";
 
     html += "</div>"; // Toggle wrapper end
 
@@ -694,7 +737,7 @@ void handleRoot() {
     html += "<p>Set your timezone and optionally also daylight saving.</p>";
 
 
-    html += "<div class=\"row\"><label for=\"std_offset\">Standard time UTC offset (in minutes, -660 = -11h, 660 = +11h):</label>";
+    html += "<div class=\"row\"><label for=\"std_offset\">Standard (winter) time UTC offset (in minutes, -660 = -11h, 660 = +11h):</label>";
     html += "<input type=\"number\" id=\"std_offset\" name=\"std_offset\" min=\"-660\" max=\"660\" value=\"";
     html += json["std_offset"].as<const char*>();
     html += "\"></div>";
@@ -953,8 +996,10 @@ void handleRoot() {
     server.sendContent(iro);
 
     html = FPSTR(html_footer);
-    html.replace("{{rgb_high}}", "rgb(" + json["rgb"]["high"][0].as<String>() + "," + json["rgb"]["high"][1].as<String>() + "," + json["rgb"]["high"][2].as<String>() + ")");
-    html.replace("{{rgb_low}}", "rgb(" + json["rgb"]["low"][0].as<String>() + "," + json["rgb"]["low"][1].as<String>() + "," + json["rgb"]["low"][2].as<String>() + ")");
+    html.replace("{{rgb}}", "{h:" + String(json["rgb"]["h"].as<int>()) + ",s:" + String(json["rgb"]["s"].as<int>()) + ",v:100}");
+    html.replace("{{rgb_high}}", "{h:" + String(json["rgb"]["h"].as<int>()) + ",s:" + String(json["rgb"]["s"].as<int>()) + ",v:" + String(json["rgb"]["v"][2].as<int>()) + "}");
+    html.replace("{{rgb_med}}", "{h:" + String(json["rgb"]["h"].as<int>()) + ",s:" + String(json["rgb"]["s"].as<int>()) + ",v:" + String(json["rgb"]["v"][1].as<int>()) + "}");
+    html.replace("{{rgb_low}}", "{h:" + String(json["rgb"]["h"].as<int>()) + ",s:" + String(json["rgb"]["s"].as<int>()) + ",v:" + String(json["rgb"]["v"][0].as<int>()) + "}");
     server.sendContent(html);
 
     server.sendContent(""); // this tells web client that transfer is done

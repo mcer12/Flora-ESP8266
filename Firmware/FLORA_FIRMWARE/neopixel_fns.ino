@@ -26,9 +26,25 @@ void resetColonColor() {
 
 void initRgbColon() {
   if (json["rgb"]["en"].as<int>() == 1) {
-    colonColorDefault[0] = RgbColor(json["rgb"]["low"][0], json["rgb"]["low"][1], json["rgb"]["low"][2]); // LOW
-    colonColorDefault[1] = RgbColor::LinearBlend(RgbColor(json["rgb"]["low"][0], json["rgb"]["low"][1], json["rgb"]["low"][2]), RgbColor(json["rgb"]["high"][0], json["rgb"]["high"][1], json["rgb"]["high"][2]), 0.5);; // MEDIUM
-    colonColorDefault[2] = RgbColor(json["rgb"]["high"][0], json["rgb"]["high"][1], json["rgb"]["high"][2]); // HIGH
+    // https://github.com/Makuna/NeoPixelBus/wiki/HsbColor-object-API
+    float hue = json["rgb"]["h"].as<float>() / 360;
+    float sat = json["rgb"]["s"].as<float>() / 100;
+    float val[3] = {
+      json["rgb"]["v"][0].as<float>() / 100,
+      json["rgb"]["v"][1].as<float>() / 100,
+      json["rgb"]["v"][2].as<float>() / 100,
+    };
+    
+    // Lets update all colors according to set brightness!
+    for (int i = 0; i < 3; i++) {
+      colonColorDefault[i] = HsbColor(hue, sat, val[i]); // LOW
+      red[i] = HsbColor(red[i].H, red[i].S, val[i]);
+      green[i] = HsbColor(green[i].H, green[i].S, val[i]);
+      blue[i] = HsbColor(blue[i].H, blue[i].S, val[i]);
+      yellow[i] = HsbColor(yellow[i].H, yellow[i].S, val[i]);
+      purple[i] = HsbColor(purple[i].H, purple[i].S, val[i]);
+      azure[i] = HsbColor(azure[i].H, azure[i].S, val[i]);
+    }
   }
   resetColonColor();
 }

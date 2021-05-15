@@ -34,7 +34,7 @@
 
 #define AP_NAME "FLORA_"
 #define FW_NAME "FLORA"
-#define FW_VERSION "4.4 beta"
+#define FW_VERSION "5.0"
 #define CONFIG_TIMEOUT 300000 // 300000 = 5 minutes
 
 // ONLY CHANGE DEFINES BELOW IF YOU KNOW WHAT YOU'RE DOING!
@@ -59,34 +59,49 @@ const char* ntpServerName = "pool.ntp.org";
 
 const int dotsAnimationSteps = 2000; // dotsAnimationSteps * TIMER_INTERVAL_uS = one animation cycle time in microseconds
 const uint8_t PixelCount = 12; // Addressable LED count
-RgbColor colorConfigMode = RgbColor(130, 0, 130);
-RgbColor colorConfigSave = RgbColor(0, 0, 130);
-RgbColor colorWifiConnecting = RgbColor(130, 100, 0);
-RgbColor colorWifiSuccess = RgbColor(0, 130, 0);
-RgbColor colorWifiFail = RgbColor(130, 0, 0);
-RgbColor colorStartupDisplay = RgbColor(0, 130, 130);
-RgbColor red[] = {
-  RgbColor(70, 0, 0), // LOW
-  RgbColor(100, 0, 0), // MEDIUM
-  RgbColor(130, 0, 0), // HIGH
+
+HsbColor red[] = {
+  HsbColor(RgbColor(100, 0, 0)), // LOW
+  HsbColor(RgbColor(150, 0, 0)), // MEDIUM
+  HsbColor(RgbColor(200, 0, 0)), // HIGH
 };
-RgbColor green[] = {
-  RgbColor(0, 70, 0), // LOW
-  RgbColor(0, 100, 0), // MEDIUM
-  RgbColor(0, 130, 0), // HIGH
+HsbColor green[] = {
+  HsbColor(RgbColor(0, 100, 0)), // LOW
+  HsbColor(RgbColor(0, 150, 0)), // MEDIUM
+  HsbColor(RgbColor(0, 200, 0)), // HIGH
+};
+HsbColor blue[] = {
+  HsbColor(RgbColor(0, 0, 100)), // LOW
+  HsbColor(RgbColor(0, 0, 150)), // MEDIUM
+  HsbColor(RgbColor(0, 0, 200)), // HIGH
+};
+HsbColor yellow[] = {
+  HsbColor(RgbColor(100, 100, 0)), // LOW
+  HsbColor(RgbColor(150, 150, 0)), // MEDIUM
+  HsbColor(RgbColor(200, 200, 0)), // HIGH
+};
+HsbColor purple[] = {
+  HsbColor(RgbColor(100, 0, 100)), // LOW
+  HsbColor(RgbColor(150, 0, 150)), // MEDIUM
+  HsbColor(RgbColor(200, 0, 200)), // HIGH
+};
+HsbColor azure[] = {
+  HsbColor(RgbColor(0, 100, 100)), // LOW
+  HsbColor(RgbColor(0, 150, 150)), // MEDIUM
+  HsbColor(RgbColor(0, 200, 200)), // HIGH
 };
 
 #if defined(CLOCK_VERSION_IV6)
-RgbColor colonColorDefault[] = {
-  RgbColor(30, 70, 50), // LOW
-  RgbColor(50, 100, 80), // MEDIUM
-  RgbColor(80, 130, 100), // HIGH
+HsbColor colonColorDefault[] = {
+  HsbColor(RgbColor(30, 70, 50)), // LOW
+  HsbColor(RgbColor(50, 100, 80)), // MEDIUM
+  HsbColor(RgbColor(80, 130, 100)), // HIGH
 };
 #else
-RgbColor colonColorDefault[] = {
-  RgbColor(30, 70, 50), // LOW
-  RgbColor(50, 100, 80), // MEDIUM
-  RgbColor(120, 220, 140), // HIGH
+HsbColor colonColorDefault[] = {
+  HsbColor(RgbColor(30, 70, 50)), // LOW
+  HsbColor(RgbColor(50, 100, 80)), // MEDIUM
+  HsbColor(RgbColor(120, 220, 140)), // HIGH
 };
 /*
   RgbColor colonColorDefault[] = {
@@ -228,6 +243,7 @@ void setup() {
   readConfig();
 
   initStrip();
+  initRgbColon();
   initScreen();
 
   WiFi.macAddress(mac);
@@ -254,7 +270,7 @@ void setup() {
 
     enableDotsAnimation = true; // Start the dots animation
 
-    updateColonColor(colorWifiConnecting);
+    updateColonColor(yellow[bri]);
     strip_show();
 
     WiFi.hostname(AP_NAME + macLastThreeSegments(mac));
@@ -266,7 +282,7 @@ void setup() {
       if (WiFi.status() != WL_CONNECTED) {
         if (i > 200) { // 20s timeout
           deviceMode = CONFIG_MODE;
-          updateColonColor(colorWifiFail);
+          updateColonColor(red[bri]);
           strip_show();
           Serial.print("[WIFI] Failed to connect to: " + String(ssid) + ", going into config mode.");
           delay(500);
@@ -274,7 +290,7 @@ void setup() {
         }
         delay(100);
       } else {
-        updateColonColor(colorWifiSuccess);
+        updateColonColor(green[bri]);
         enableDotsAnimation = false;
         strip_show();
         Serial.print("[WIFI] Successfully connected to: ");
@@ -299,7 +315,6 @@ void setup() {
     startServer();
   }
 
-  initRgbColon();
   //initScreen();
 
   if (json["rst_cycle"].as<unsigned int>() == 1) {
@@ -327,7 +342,7 @@ void loop() {
 
   if (timeUpdateFirst == true && timeUpdateStatus == UPDATE_FAIL || deviceMode == CONNECTION_FAIL) {
     setAllDigitsTo(0);
-    strip.ClearTo(red[2]); // red
+    updateColonColor(red[bri]); // red
     strip_show();
     delay(10);
     return;

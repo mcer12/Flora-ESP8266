@@ -203,7 +203,7 @@ void showTime() {
 }
 
 void cycleDigits() {
-  strip.ClearTo(colorStartupDisplay);
+  updateColonColor(azure[bri]);
   strip.Show();
 
   for (int i = 0; i < 10; i++) {
@@ -250,7 +250,7 @@ void showIP(int delay_ms) {
     setDigit(5, (ip_addr[3]) % 10);
   }
 
-  strip.ClearTo(colorStartupDisplay);
+  updateColonColor(azure[bri]);
   strip_show();
   delay(delay_ms);
   strip.ClearTo(RgbColor(0, 0, 0));
