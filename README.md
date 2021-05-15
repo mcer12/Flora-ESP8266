@@ -37,5 +37,5 @@ https://www.thingiverse.com/thing:4744087
 
 **License:**  
 GPL-3.0 License  
-LGPL-2.1 License (modified SPI library)
+LGPL-2.1 License (modified SPI library)  
 Mozilla Public License 2.0 (iro.js, https://github.com/jaames/iro.js)
