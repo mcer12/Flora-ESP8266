@@ -2,9 +2,9 @@
 Flora is an open source ESP8266 VFD clock, you can make a 4-digit IV-22 variant or 6-digit IV-6 variant. Designed to be low profile and as small as possible, using widely available components. 
 
 **STATUS:**
-- **IV-22 variant:** Tested and working, schematic, gerber and BOM are included. Assembly guide added to wiki.
-- **IV-6 variant:** Tested and working. Schematic, gerber and BOM included. 3D printed case will be added below once some adjustments have been made.
-- **IV-12 variant:** New pcb finished, needs to be tested before publishing.
+- **IV-22 variant:** Tested and working, schematic, gerber BOM and 3D model of cover are included. Assembly guide added to wiki.
+- **IV-6 variant:** Tested and working. Schematic, gerber and BOM included. 3D printed cover will be added below once some adjustments have been made.
+- **IV-12 variant:** Tested and working. Schematic, gerber and BOM included. 3D printed cover will be added below once some adjustments have been made.
 
 **Wiki**
 https://github.com/mcer12/Flora-ESP8266/wiki/
