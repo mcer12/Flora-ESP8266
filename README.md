@@ -20,7 +20,7 @@ https://www.thingiverse.com/thing:4744087
 5) CH340 with NodeMCU style auto-reset built-in for easy programming / debugging
 6) Each segment driven directly, not multiplexed
 7) NTP based, no battery / RTC. Connect to wifi and you're done.
-8) Simple and easy to set up web interface
+8) Simple and easy to set up, mobile-friendly web interface
 9) diyHue and remote control support
 10) 150hz refresh rate using HW ISR timer, zero flicker and not affected by wifi activity.
 11) 3 levels of brightness, each with 8 more levels for dimming / crossfade. 32 pwm steps in total for each segment!
@@ -31,7 +31,9 @@ https://www.thingiverse.com/thing:4744087
 
 **Images:**
 
-![alt text](https://raw.githubusercontent.com/mcer12/Flora-ESP8266/main/Images/clock.jpg)  
+![alt text](https://raw.githubusercontent.com/mcer12/Flora-ESP8266/main/Images/IV22_1.jpg)  
+
+![alt text](https://raw.githubusercontent.com/mcer12/Flora-ESP8266/main/Images/IV6_1.jpg)  
 
 ![alt text](https://raw.githubusercontent.com/mcer12/Flora-ESP8266/main/Images/screenshot.png)  
 
