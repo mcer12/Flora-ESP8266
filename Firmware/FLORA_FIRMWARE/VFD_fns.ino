@@ -242,7 +242,7 @@ void showIP(int delay_ms) {
     } else {
       setDigit(3, (ip_addr[3] / 100) % 10);
     }
-    if ((ip_addr[3] / 10) % 10 == 0) {
+    if ((ip_addr[3] / 10) % 10 == 0 && (ip_addr[3] / 100) % 10 == 0) {
       blankDigit(4);
     } else {
       setDigit(4, (ip_addr[3] / 10) % 10);
