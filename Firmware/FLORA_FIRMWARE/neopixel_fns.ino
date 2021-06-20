@@ -34,7 +34,7 @@ void initRgbColon() {
       json["rgb"]["v"][1].as<float>() / 100,
       json["rgb"]["v"][2].as<float>() / 100,
     };
-    
+
     // Lets update all colors according to set brightness!
     for (int i = 0; i < 3; i++) {
       colonColorDefault[i] = HsbColor(hue, sat, val[i]); // LOW
@@ -71,18 +71,43 @@ void initRgbColon() {
 void updateColonColor(RgbColor color) {
   RgbColor colorHigh = color;
   RgbColor colorMed = color;
+  RgbColor colorMedLow = color;
   RgbColor colorLow = color;
 
   if (json["colon"].as<int>() == 3) {
+#ifdef CLOCK_VERSION_IV12
+    colorMed = RgbColor::LinearBlend(color, RgbColor(0, 0, 0), 0.2);
+    colorMedLow = RgbColor::LinearBlend(color, RgbColor(0, 0, 0), 0.5);
+    colorLow = RgbColor::LinearBlend(color, RgbColor(0, 0, 0), 0.8);
+#else
     colorMed = RgbColor::LinearBlend(color, RgbColor(0, 0, 0), 0.5);
     colorLow = RgbColor::LinearBlend(color, RgbColor(0, 0, 0), 0.7);
+#endif
   }
 
   // Gamma correction => linearize brightness
   colorHigh = colorGamma.Correct(colorHigh);
   colorMed = colorGamma.Correct(colorMed);
+  colorMedLow = colorGamma.Correct(colorMedLow);
   colorLow = colorGamma.Correct(colorLow);
 
+#ifdef CLOCK_VERSION_IV12
+  strip.SetPixelColor(3, colorHigh);
+  strip.SetPixelColor(2, colorMed);
+  strip.SetPixelColor(4, colorMed);
+  strip.SetPixelColor(1, colorMedLow);
+  strip.SetPixelColor(5, colorMedLow);
+  strip.SetPixelColor(0, colorLow);
+  strip.SetPixelColor(6, colorLow);
+
+  strip.SetPixelColor(10, colorHigh);
+  strip.SetPixelColor(9, colorMed);
+  strip.SetPixelColor(11, colorMed);
+  strip.SetPixelColor(8, colorMedLow);
+  strip.SetPixelColor(12, colorMedLow);
+  strip.SetPixelColor(7, colorLow);
+  strip.SetPixelColor(13, colorLow);
+#else
   strip.SetPixelColor(2, colorHigh);
   strip.SetPixelColor(3, colorHigh);
   strip.SetPixelColor(1, colorMed);
@@ -96,6 +121,9 @@ void updateColonColor(RgbColor color) {
   strip.SetPixelColor(10, colorMed);
   strip.SetPixelColor(6, colorLow);
   strip.SetPixelColor(11, colorLow);
+#endif
+
+
 }
 
 void handleColon() {

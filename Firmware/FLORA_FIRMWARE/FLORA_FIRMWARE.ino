@@ -1,3 +1,8 @@
+/*
+ * GNU General Public License v3.0
+ * Copyright (c) 2019 Martin Cerny
+*/
+
 #include <FS.h>
 #include <ArduinoJson.h>
 #include <math.h>
@@ -34,7 +39,7 @@
 
 #define AP_NAME "FLORA_"
 #define FW_NAME "FLORA"
-#define FW_VERSION "5.0"
+#define FW_VERSION "5.1"
 #define CONFIG_TIMEOUT 300000 // 300000 = 5 minutes
 
 // ONLY CHANGE DEFINES BELOW IF YOU KNOW WHAT YOU'RE DOING!
@@ -58,7 +63,7 @@ const char* update_password = "flora";
 const char* ntpServerName = "pool.ntp.org";
 
 const int dotsAnimationSteps = 2000; // dotsAnimationSteps * TIMER_INTERVAL_uS = one animation cycle time in microseconds
-const uint8_t PixelCount = 12; // Addressable LED count
+const uint8_t PixelCount = 14; // Addressable LED count
 
 HsbColor red[] = {
   HsbColor(RgbColor(100, 0, 0)), // LOW
