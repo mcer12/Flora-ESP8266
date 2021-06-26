@@ -1,6 +1,6 @@
 /*
  * GNU General Public License v3.0
- * Copyright (c) 2019 Martin Cerny
+ * Copyright (c) 2021 Martin Cerny
 */
 
 #include <FS.h>
@@ -30,8 +30,8 @@
 
 // Pick a clock version below!
 //#define CLOCK_VERSION_IV6
-//#define CLOCK_VERSION_IV12
-#define CLOCK_VERSION_IV22
+#define CLOCK_VERSION_IV12
+//#define CLOCK_VERSION_IV22
 
 #if !defined(CLOCK_VERSION_IV6) && !defined(CLOCK_VERSION_IV12) && !defined(CLOCK_VERSION_IV22)
 #error "You have to select a clock version! Line 25"
