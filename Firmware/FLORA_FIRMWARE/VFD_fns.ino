@@ -26,7 +26,7 @@ void ICACHE_RAM_ATTR shiftWriteBytes(volatile byte *data) {
 
 void ICACHE_RAM_ATTR TimerHandler()
 {
-#if !defined(CLOCK_VERSION_IV12)
+
   // Only one ISR timer is available so if we want the dots to not glitch during wifi connection, we need to put it here...
   // speed of the dots depends on refresh frequency of the display
   if (enableDotsAnimation) {
@@ -34,15 +34,22 @@ void ICACHE_RAM_ATTR TimerHandler()
 
     for (int i = 0; i < registersCount; i++) {
       if (dotsAnimationState >= stepCount * i && dotsAnimationState < stepCount * (i + 1)) {
+        #if defined(CLOCK_VERSION_IV12)
+        segmentBrightness[i][4] = bri_vals_separate[bri][i];
+        #else
         segmentBrightness[i][7] = bri_vals_separate[bri][i];
+        #endif
       } else {
+        #if defined(CLOCK_VERSION_IV12)
+        segmentBrightness[i][4] = 0;
+        #else
         segmentBrightness[i][7] = 0;
+        #endif
       }
     }
     dotsAnimationState++;
     if (dotsAnimationState >= dotsAnimationSteps) dotsAnimationState = 0;
   }
-#endif
 
   // Normal PWM
   for (int i = 0; i < registersCount; i++) {
