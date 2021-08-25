@@ -28,14 +28,15 @@ https://www.thingiverse.com/thing:4890505
 4) Colons made out of WS2812 addressable leds
 5) CH340 with NodeMCU style auto-reset built-in for easy programming / debugging
 6) Each segment driven directly, not multiplexed
-7) NTP based, no battery / RTC. Connect to wifi and you're done.
-8) Simple and easy to set up, mobile-friendly web interface
-9) diyHue and remote control support
-10) 100hz refresh rate using HW ISR timer, zero flicker and not affected by wifi activity.
-11) 3 levels of brightness, each with 8 more levels for dimming / crossfade. 48 pwm steps in total for each segment!
-12) No buttons design. Simple configuration portal is used for settings.
-13) Daylight saving (summer time) support built in and super simple to set up.
-14) MicroUSB connector (USB type C on IV-12 version), Below 500mA power consumption on 5V on full brightness (800mA on IV-12 version).
+7) Brightness balancing - easy to match tubes with different brightness
+8) NTP based, no battery / RTC. Connect to wifi and you're done.
+9) Simple and easy to set up, mobile-friendly web interface
+10) diyHue and remote control support
+11) 100hz refresh rate using HW ISR timer, zero flicker and not affected by wifi activity.
+12) 3 levels of brightness, each with 8 more levels for dimming / crossfade. 48 pwm steps in total for each segment!
+13) No buttons design. Simple configuration portal is used for settings.
+14) Daylight saving (summer time) support built in and super simple to set up.
+15) MicroUSB connector (USB type C on IV-12 version), Below 500mA power consumption on 5V on full brightness (800mA on IV-12 version).
 
 
 **Images:**
