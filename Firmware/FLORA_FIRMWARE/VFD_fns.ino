@@ -188,6 +188,8 @@ void showTime() {
   int hours = hour();
   if (hours > 12 && json["t_format"].as<int>() == 0) { // 12 / 24 h format
     hours -= 12;
+  } else if (hours == 0 && json["t_format"].as<int>() == 0) {
+    hours = 12;
   }
 
   int splitTime[6] = {

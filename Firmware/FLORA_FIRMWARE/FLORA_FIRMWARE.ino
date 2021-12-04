@@ -30,8 +30,8 @@
 
 // Pick a clock version below!
 //#define CLOCK_VERSION_IV6
-#define CLOCK_VERSION_IV12
-//#define CLOCK_VERSION_IV22
+//#define CLOCK_VERSION_IV12
+#define CLOCK_VERSION_IV22
 
 #if !defined(CLOCK_VERSION_IV6) && !defined(CLOCK_VERSION_IV12) && !defined(CLOCK_VERSION_IV22)
 #error "You have to select a clock version! Line 25"
@@ -39,7 +39,7 @@
 
 #define AP_NAME "FLORA_"
 #define FW_NAME "FLORA"
-#define FW_VERSION "5.1"
+#define FW_VERSION "5.1.2"
 #define CONFIG_TIMEOUT 300000 // 300000 = 5 minutes
 
 // ONLY CHANGE DEFINES BELOW IF YOU KNOW WHAT YOU'RE DOING!
