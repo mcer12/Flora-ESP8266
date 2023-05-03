@@ -75,7 +75,7 @@ void updateColonColor(RgbColor color) {
   RgbColor colorLow = color;
 
   if (json["colon"].as<int>() == 3) {
-#ifdef CLOCK_VERSION_IV12
+#if defined(CLOCK_VERSION_IV12) || defined(CLOCK_VERSION_IV6_V2)
     colorMed = RgbColor::LinearBlend(color, RgbColor(0, 0, 0), 0.1);
     colorMedLow = RgbColor::LinearBlend(color, RgbColor(0, 0, 0), 0.3);
     colorLow = RgbColor::LinearBlend(color, RgbColor(0, 0, 0), 0.6);
@@ -91,7 +91,7 @@ void updateColonColor(RgbColor color) {
   colorMedLow = colorGamma.Correct(colorMedLow);
   colorLow = colorGamma.Correct(colorLow);
 
-#ifdef CLOCK_VERSION_IV12
+#if defined(CLOCK_VERSION_IV12) || defined(CLOCK_VERSION_IV6_V2)
   strip.SetPixelColor(3, colorHigh);
   strip.SetPixelColor(2, colorMed);
   strip.SetPixelColor(4, colorMed);

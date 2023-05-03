@@ -30,16 +30,17 @@
 
 // Pick a clock version below!
 //#define CLOCK_VERSION_IV6
+//#define CLOCK_VERSION_IV6_V2
 //#define CLOCK_VERSION_IV12
 #define CLOCK_VERSION_IV22
 
-#if !defined(CLOCK_VERSION_IV6) && !defined(CLOCK_VERSION_IV12) && !defined(CLOCK_VERSION_IV22)
+#if !defined(CLOCK_VERSION_IV6) && !defined(CLOCK_VERSION_IV6_V2) && !defined(CLOCK_VERSION_IV12) && !defined(CLOCK_VERSION_IV22)
 #error "You have to select a clock version! Line 25"
 #endif
 
 #define AP_NAME "FLORA_"
 #define FW_NAME "FLORA"
-#define FW_VERSION "5.1.2"
+#define FW_VERSION "5.1.3"
 #define CONFIG_TIMEOUT 300000 // 300000 = 5 minutes
 
 // ONLY CHANGE DEFINES BELOW IF YOU KNOW WHAT YOU'RE DOING!
@@ -63,6 +64,7 @@ const char* update_password = "flora";
 const char* ntpServerName = "pool.ntp.org";
 
 const int dotsAnimationSteps = 2000; // dotsAnimationSteps * TIMER_INTERVAL_uS = one animation cycle time in microseconds
+
 const uint8_t PixelCount = 14; // Addressable LED count
 
 HsbColor red[] = {
@@ -96,7 +98,7 @@ HsbColor azure[] = {
   HsbColor(RgbColor(0, 200, 200)), // HIGH
 };
 
-#if defined(CLOCK_VERSION_IV6)
+#if defined(CLOCK_VERSION_IV6) || defined(CLOCK_VERSION_IV6_V2)
 HsbColor colonColorDefault[] = {
   HsbColor(RgbColor(30, 70, 50)), // LOW
   HsbColor(RgbColor(50, 100, 80)), // MEDIUM
@@ -128,7 +130,7 @@ RgbColor currentColor = RgbColor(0, 0, 0);
 //RgbColor colonColorDefault = RgbColor(90, 27, 7);
 //RgbColor colonColorDefault = RgbColor(38, 12, 2);
 
-#if defined(CLOCK_VERSION_IV6)
+#if defined(CLOCK_VERSION_IV6) || defined(CLOCK_VERSION_IV6_V2)
 const uint8_t registersCount = 6;
 const uint8_t segmentCount = 8;
 const uint8_t digitPins[registersCount][segmentCount] = {
