@@ -30,9 +30,9 @@
 
 // Pick a clock version below!
 //#define CLOCK_VERSION_IV6
-//#define CLOCK_VERSION_IV6_V2
+#define CLOCK_VERSION_IV6_V2
 //#define CLOCK_VERSION_IV12
-#define CLOCK_VERSION_IV22
+//#define CLOCK_VERSION_IV22
 
 #if !defined(CLOCK_VERSION_IV6) && !defined(CLOCK_VERSION_IV6_V2) && !defined(CLOCK_VERSION_IV12) && !defined(CLOCK_VERSION_IV22)
 #error "You have to select a clock version! Line 25"
@@ -130,7 +130,7 @@ RgbColor currentColor = RgbColor(0, 0, 0);
 //RgbColor colonColorDefault = RgbColor(90, 27, 7);
 //RgbColor colonColorDefault = RgbColor(38, 12, 2);
 
-#if defined(CLOCK_VERSION_IV6) || defined(CLOCK_VERSION_IV6_V2)
+#if defined(CLOCK_VERSION_IV6)
 const uint8_t registersCount = 6;
 const uint8_t segmentCount = 8;
 const uint8_t digitPins[registersCount][segmentCount] = {
@@ -140,6 +140,17 @@ const uint8_t digitPins[registersCount][segmentCount] = {
   {16, 17, 18, 19, 20, 21, 22, 23}, // BR | B | BL | TL | M | T | TR | DOT
   {8, 9, 10, 11, 12, 13, 14, 15}, // BR | B | BL | TL | M | T | TR | DOT
   {0, 1, 2, 3, 4, 5, 6, 7}, // BR | B | BL | TL | M | T | TR | DOT
+};
+#elif defined(CLOCK_VERSION_IV6_V2)
+const uint8_t registersCount = 6;
+const uint8_t segmentCount = 8;
+const uint8_t digitPins[registersCount][segmentCount] = {
+  {40, 41, 42, 43, 44, 45, 46, 47}, // BR | B | BL | TL | M | T | TR | DOT
+  {39, 32, 33, 34, 35, 36, 37, 38}, // BR | B | BL | TL | M | T | TR | DOT
+  {31, 24, 25, 26, 27, 28, 29, 30}, // BR | B | BL | TL | M | T | TR | DOT
+  {16, 17, 18, 19, 20, 21, 22, 23}, // BR | B | BL | TL | M | T | TR | DOT
+  {8, 9, 10, 11, 12, 13, 14, 15}, // BR | B | BL | TL | M | T | TR | DOT
+  {7,0, 1, 2, 3, 4, 5, 6}, // BR | B | BL | TL | M | T | TR | DOT
 };
 #elif defined(CLOCK_VERSION_IV12)
 const uint8_t registersCount = 6;
