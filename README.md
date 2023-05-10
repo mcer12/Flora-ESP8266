@@ -17,6 +17,9 @@ https://www.thingiverse.com/thing:4744087
 **IV-6 enclosure model:**  
 https://www.thingiverse.com/thing:5213794
 
+**IV-6 V2 and IV-3 enclosure model:**  
+https://www.printables.com/model/477693-flora-iv-6-v2-and-iv-3-clock-case
+
 **IV-12 enclosure model:**  
 https://www.thingiverse.com/thing:4890505
 
